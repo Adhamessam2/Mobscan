@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/screens/Splash_Screen.dart';
+import 'package:mobscan/screens/splash_Screen.dart';
 
 void main() {
   runApp(const Mobscan());
