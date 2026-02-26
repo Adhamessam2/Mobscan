@@ -14,6 +14,10 @@ class AppsCubit extends Cubit<AppsState> {
 
   void getApps() {
     emit(state.copyWith(status: AppStatus.loading));
+    if (apps.isEmpty) {
+      emit(state.copyWith(status: AppStatus.failed, allApps: []));
+      return;
+    }
     emit(state.copyWith(status: AppStatus.success, allApps: apps));
   }
 
