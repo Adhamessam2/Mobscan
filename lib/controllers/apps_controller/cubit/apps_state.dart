@@ -1,6 +1,6 @@
 part of 'apps_cubit.dart';
 
-enum AppStatus { intial, loading, success, error }
+enum AppStatus { intial, loading, success, error, failed }
 
 @immutable
 class AppsState {
