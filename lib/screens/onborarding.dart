@@ -49,7 +49,7 @@ class _OnborardingState extends State<Onborarding> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Permissionsscreen()),
+        MaterialPageRoute(builder: (context) => PermissionsScreen()),
       );
     }
   }
@@ -83,7 +83,7 @@ class _OnborardingState extends State<Onborarding> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const Permissionsscreen(),
+                        builder: (context) =>  PermissionsScreen(),
                       ),
                     );
                   },

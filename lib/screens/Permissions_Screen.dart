@@ -1,14 +1,14 @@
 
         import 'package:flutter/material.dart';
 
-    class SettingsScreen extends StatefulWidget {
-    const SettingsScreen({super.key});
+    class PermissionsScreen extends StatefulWidget {
+    const PermissionsScreen({super.key});
 
     @override
-    State<SettingsScreen> createState() => _SettingsScreenState();
+    State<PermissionsScreen> createState() => _PermissionsScreenState();
     }
 
-        class _SettingsScreenState extends State<SettingsScreen> {
+        class _PermissionsScreenState extends State<PermissionsScreen> {
 
     bool autoScan = false;
     bool saveToCloud = false;
