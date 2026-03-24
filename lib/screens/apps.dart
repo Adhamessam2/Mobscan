@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/core/appcolors.dart';
 import 'package:mobscan/models/app_model.dart';
+import 'package:mobscan/screens/threat_detailes.dart';
 
 class Apps extends StatefulWidget {
   const Apps({super.key});
@@ -174,45 +175,53 @@ class _AppsState extends State<Apps> {
         color: Appcolors.searchBarColor,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: ListTile(
-        leading: Image.asset(app.image),
-        title: Text(
-          app.name,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        subtitle: Text(app.package, style: TextStyle(color: Appcolors.text)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Column(
-              children: [
-                Text(
-                  "${app.riskLevel}%",
-                  style: TextStyle(
-                    color: _riskColors(app.riskLevel),
-                    fontSize: 16,
-                  ),
-                ),
-                Container(
-                  padding: .symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _riskColors(app.riskLevel).withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    app.risk,
-                    style: TextStyle(color: _riskColors(app.riskLevel)),
-                  ),
-                ),
-              ],
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ThreatDetailScreen()),
+          );
+        },
+        child: ListTile(
+          leading: Image.asset(app.image),
+          title: Text(
+            app.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
-            SizedBox(width: 10),
-            Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
-          ],
+          ),
+          subtitle: Text(app.package, style: TextStyle(color: Appcolors.text)),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    "${app.riskLevel}%",
+                    style: TextStyle(
+                      color: _riskColors(app.riskLevel),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Container(
+                    padding: .symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _riskColors(app.riskLevel).withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      app.risk,
+                      style: TextStyle(color: _riskColors(app.riskLevel)),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 10),
+              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            ],
+          ),
         ),
       ),
     );
