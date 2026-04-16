@@ -101,11 +101,14 @@ class _MainDashboardState extends State<MainDashboard> {
           Stack(
             alignment: Alignment.center,
               children: [
-                Container(
-                  child:SvgPicture.asset(
-                      'lib/assets/icons/vector.svg'
-                  ),
-                ),
+               SizedBox(
+                 height: 165,
+                 width: 170,
+                 child: CircularProgressIndicator(
+                   color:Color(0xFF007BFF),
+                   strokeWidth: 15,
+                 ),
+               ),
                 Container(
                   child: Column(
                     children: [
@@ -113,9 +116,6 @@ class _MainDashboardState extends State<MainDashboard> {
                       Text('SECURITY SCORE',style: TextStyle(color: Color.fromRGBO(148, 163, 184, 1)),),
                     ],
                   ),
-                ),
-                SvgPicture.asset(
-                    'lib/assets/icons/vector.svg'
                 ),
               ],
                 ),
@@ -150,11 +150,11 @@ class _MainDashboardState extends State<MainDashboard> {
                   childAspectRatio: 1.5,
                 ),
             children: [
-             report_container('lib/assets/icons/secret.svg',Color.fromRGBO(255, 77, 77, 0.1),'DETECTED',Colors.redAccent,'Root Detection','Unsafe environment'),
-              report_container('lib/assets/icons/debug.svg',Color(0xFF111827),'SECURE',Color(0xFF007BFF),'Debugger','No active session' ),
-              report_container('lib/assets/icons/emulator.svg',Color(0xFF111827),'SECURE',Color(0xFF007BFF),'Emulator','Physical hardware'),
-              report_container('lib/assets/icons/hook.svg',Color.fromRGBO(255, 77, 77, 0.1),'WARNING',Colors.redAccent,'Hook Detection','Framework detected'),
-              report_container('lib/assets/icons/antivirus.svg',Color(0xFF111827),'CLEANED',Color(0xFF007BFF),'Antivirus Scan','No malware found')
+             report_container('assets/icons/secret.svg',Color.fromRGBO(255, 77, 77, 0.1),'DETECTED',Colors.redAccent,'Root Detection','Unsafe environment'),
+              report_container('assets/icons/debug.svg',Color(0xFF111827),'SECURE',Color(0xFF007BFF),'Debugger','No active session' ),
+              report_container('assets/icons/emulator.svg',Color(0xFF111827),'SECURE',Color(0xFF007BFF),'Emulator','Physical hardware'),
+              report_container('assets/icons/hook.svg',Color.fromRGBO(255, 77, 77, 0.1),'WARNING',Colors.redAccent,'Hook Detection','Framework detected'),
+              report_container('assets/icons/antivirus.svg',Color(0xFF111827),'CLEANED',Color(0xFF007BFF),'Antivirus Scan','No malware found')
             ],
             scrollDirection: Axis.vertical,),
           )
