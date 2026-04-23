@@ -13,9 +13,10 @@ class MainDashboard extends StatefulWidget {
 class _MainDashboardState extends State<MainDashboard> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     int _selectedIndex = 0;
     return Scaffold(
-      backgroundColor: Color(0xff0A0E14),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
 
         toolbarHeight: 70,

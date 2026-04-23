@@ -54,16 +54,15 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.apps_rounded, color: Appcolors.cardColor),
             label: '',
           ),
-
+          BottomNavigationBarItem(
+            icon: Icon(Icons.security, color: Appcolors.cardColor),
+            label: '',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings, color: Appcolors.cardColor),
             label: '',
           ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.security, color: Appcolors.cardColor),
-            label: '',
-          ),
         ],
       ),
     );
