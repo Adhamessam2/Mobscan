@@ -25,8 +25,9 @@ class _AppsState extends State<Apps> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Appcolors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         leading: Image.asset("assets/Container.png"),
         title: Text("MobScan", style: TextStyle(color: Colors.white)),
