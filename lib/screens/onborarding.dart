@@ -64,15 +64,12 @@ class _OnborardingState extends State<Onborarding> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A1A2F),
-
-      // 🔥 الأزرار تحت الشاشة
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 👇 زر Skip Intro
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -89,8 +86,6 @@ class _OnborardingState extends State<Onborarding> {
               ),
 
               const SizedBox(height: 10),
-
-              // 👇 زر Next
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -176,8 +171,6 @@ class _OnborardingState extends State<Onborarding> {
                           style: const TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 20),
-
-                        // dots
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
