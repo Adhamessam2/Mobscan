@@ -1,1 +1,1 @@
-![App Screenshot](screenshots/screenshot1.png)
+![App Screenshot](alsplash.png)
