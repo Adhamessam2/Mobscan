@@ -1,49 +1,63 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
+import 'package:mobscan/models/Scan_result.dart';
 import 'package:mobscan/screens/home_page.dart';
 
 class MainDashboard extends StatefulWidget {
   String username;
-  MainDashboard({super.key,this.username='User'});
+  String _result = '';
+
+  MainDashboard({super.key, this.username = 'User'});
 
   @override
   State<MainDashboard> createState() => _MainDashboardState();
 }
 
 class _MainDashboardState extends State<MainDashboard> {
+  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    int _selectedIndex = 0;
     return Scaffold(
       backgroundColor: Color(0xff0A0E14),
-      appBar: AppBar(
 
+      appBar: AppBar(
         toolbarHeight: 70,
         backgroundColor: Color(0xff0A0E14),
         leadingWidth: 140,
-        leading:Container(
+        leading: Container(
           padding: EdgeInsets.only(left: 16),
-            width: 121,
-            height: 28,
-            child:Row(
-                mainAxisSize: MainAxisSize.min,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
-          "lib/assets/icons/icon.svg",
-          width: 20,
-          height: 25,
+                "lib/assets/icons/icon.svg",
+                width: 20,
+                height: 25,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'MobScan',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
         ),
-          SizedBox(width: 10,),
-          Text('MobScan',style: TextStyle(fontSize:20,color:Colors.white,fontWeight: FontWeight.w900),),
-            ])
-        ),
+
         actions: [
           GestureDetector(
-            onTap: () {
-            },
+            onTap: () {},
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: EdgeInsets.symmetric(horizontal: 8,vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
                 color: Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
@@ -55,116 +69,190 @@ class _MainDashboardState extends State<MainDashboard> {
               ),
             ),
           ),
-         GestureDetector(
-           onTap: (){},
-           child:
-         Container(
-           margin: EdgeInsets.symmetric(horizontal: 8,vertical: 10),
-            padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-            child:Icon(Icons.menu,size: 30, color: Color(0xFF007BFF)),
-           decoration: BoxDecoration(
-             color: Color(0xFF111827),
-             borderRadius: BorderRadius.circular(8),
-           ),
+
+          GestureDetector(
+            onTap: () {
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Color(0xFF111827),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.menu,
+                size: 30,
+                color: Color(0xFF007BFF),
+              ),
+            ),
           ),
-         )
         ],
       ),
+
       body: Center(
         child: Column(
-        children: [
-          SizedBox(height: 5,),
-          Container(
-            child: Center(
-              child: Column(
-                spacing: 4,
-                  children: [ Text('Hello,${widget.username}',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,fontSize: 25),),
-            Container(
-              height: 42,
-              width: 250,
-              decoration: BoxDecoration(
-                color: Color.fromRGBO(255, 77, 77, 0.1),
-                borderRadius: BorderRadius.circular(20)
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 2,
-                children: [SvgPicture.asset(
-                  'lib/assets/icons/plot.svg',
-             ),
-                  SizedBox(width: 5,),
-                  Text_color('Device Status: '),Text_color('At Risk')],),
-            )
-              ])),
-          ),
-          SizedBox(height: 10,),
-          Stack(
-            alignment: Alignment.center,
+          children: [
+            SizedBox(height: 5),
+
+            Column(
               children: [
-               SizedBox(
-                 height: 165,
-                 width: 170,
-                 child: CircularProgressIndicator(
-                   color:Color(0xFF007BFF),
-                   strokeWidth: 15,
-                 ),
-               ),
+                Text(
+                  'Hello,${widget.username}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 25,
+                  ),
+                ),
+
                 Container(
-                  child: Column(
+                  height: 42,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(255, 77, 77, 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('78%',style: TextStyle(color: Color(0xFF007BFF),fontSize: 50,fontWeight: FontWeight.w900),),
-                      Text('SECURITY SCORE',style: TextStyle(color: Color.fromRGBO(148, 163, 184, 1)),),
+                      SvgPicture.asset('lib/assets/icons/plot.svg'),
+                      SizedBox(width: 5),
+                      Text_color('Device Status: '),
+                      Text_color('At Risk'),
                     ],
                   ),
                 ),
               ],
-                ),
-          SizedBox(height: 20,),
-          GestureDetector(
-            onTap:(){},
-            child: Container(
-              width: 358,
-              height: 56,
-              child:Center(child:Row(spacing:10,mainAxisAlignment:MainAxisAlignment.center,children: [SvgPicture.asset('lib/assets/icons/scan.svg'),Text('Scan Now',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w800,fontSize: 18),)],),),
-            decoration: BoxDecoration(
-              color: Color(0xFF007BFF),
-              borderRadius: BorderRadius.circular(20),
             ),
-            ),
-          ),
-          Text('Last scan: 2 hours . 3 threats found',style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),),
-              Row(
 
-                children: [
-                  Padding(padding: EdgeInsetsGeometry.all(10),
-                  child:
-                  Text('SECURITY MODELS',style:TextStyle(color: Color.fromRGBO(100, 116, 139, 1),fontSize: 19),),
-                  )],
+            SizedBox(height: 10),
+
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  height: 165,
+                  width: 170,
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF007BFF),
+                    strokeWidth: 15,
+                  ),
+                ),
+                Column(
+                  children: [
+                    Text(
+                      '78%',
+                      style: TextStyle(
+                        color: Color(0xFF007BFF),
+                        fontSize: 50,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Text(
+                      'SECURITY SCORE',
+                      style: TextStyle(
+                        color: Color.fromRGBO(148, 163, 184, 1),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            GestureDetector(
+              onTap: () {
+                context.read<AppsCubit>().checkRootJailbreak();
+               context.read<AppsCubit>().checkFridalog();
+                },
+              child: Container(
+                width: 358,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Color(0xFF007BFF),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset('lib/assets/icons/scan.svg'),
+                      SizedBox(width: 10),
+                      Text(
+                        'Scan Now',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-          Expanded(
-            child: GridView(
-                gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 1.5,
-                ),
-            children: [
-             report_container('assets/icons/secret.svg',Color.fromRGBO(255, 77, 77, 0.1),'DETECTED',Colors.redAccent,'Root Detection','Unsafe environment'),
-              report_container('assets/icons/debug.svg',Color(0xFF111827),'SECURE',Color(0xFF007BFF),'Debugger','No active session' ),
-              report_container('assets/icons/emulator.svg',Color(0xFF111827),'SECURE',Color(0xFF007BFF),'Emulator','Physical hardware'),
-              report_container('assets/icons/hook.svg',Color.fromRGBO(255, 77, 77, 0.1),'WARNING',Colors.redAccent,'Hook Detection','Framework detected'),
-              report_container('assets/icons/antivirus.svg',Color(0xFF111827),'CLEANED',Color(0xFF007BFF),'Antivirus Scan','No malware found')
-            ],
-            scrollDirection: Axis.vertical,),
-          )
-        ],
             ),
-          ),
 
+            Text(
+              'Last scan: 2 hours . ${context.read<AppsCubit>().results.length} threats found',
+              style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+            ),
 
-    );
-  }
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    'SECURITY MODELS',
+                    style: TextStyle(
+                      color: Color.fromRGBO(100, 116, 139, 1),
+                      fontSize: 19,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Expanded(
+              child:
+                  BlocBuilder<AppsCubit,AppsState>(builder: (BuildContext context,state) {
+                    final res = context.read<AppsCubit>();
+                    if(state.status == AppStatus.loading){
+                      return CircularProgressIndicator(
+
+                      );
+                    }
+                    if(state.status == AppStatus.success)
+                    return GridView.builder(
+                      scrollDirection: Axis.vertical,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                        childAspectRatio: 1.5,
+                      ),
+                      itemCount: state.scanResults.length,
+                      itemBuilder: (context, index) {
+                   final item = state.scanResults[index];
+                     return report_container(
+                         item.svg,
+                        item.svgColor,
+                         item.behaviour,
+                         item.behavColor,
+                         item.explain,
+                     item.smallExplain);
+                      }
+                    );
+                    else
+                      return Text('notfound');
+                  }
+                  ),
+            )]
+            )
+      )    );
+   }
+
 }
 Widget Text_color(String example){
   return Text(
@@ -177,9 +265,9 @@ color:Colors.redAccent,
 );
 }
 Widget report_container(String svg,Color svgcolor,String behaviour,Color behavcolor,String explain,String smallexplain){
-  return   Container(
+  return Container(
     padding: EdgeInsets.all(12),
-    margin: EdgeInsets.all(10),
+
     height: 30,
     width: 30,
     decoration: BoxDecoration(
