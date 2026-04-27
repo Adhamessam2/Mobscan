@@ -30,7 +30,7 @@ class _AppsState extends State<Apps> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         leading: Image.asset("assets/Container.png"),
-        title: Text("MobScan", style: TextStyle(color: Colors.white)),
+        title: Text("MobScan", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         actions: [
           IconButton(
             onPressed: () {},
@@ -50,9 +50,9 @@ class _AppsState extends State<Apps> {
                 onChanged: (value) {
                   context.read<AppsCubit>().search(value);
                 },
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
                 decoration: InputDecoration(
-                  fillColor: Appcolors.searchBarColor,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   filled: true,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -88,7 +88,7 @@ class _AppsState extends State<Apps> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Appcolors.searchBarColor,
+                color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -191,7 +191,7 @@ class _AppsState extends State<Apps> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: Appcolors.searchBarColor,
+        color: Theme.of(context).colorScheme.primary ,
         borderRadius: BorderRadius.circular(10),
       ),
       child: GestureDetector(
