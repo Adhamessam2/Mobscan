@@ -33,6 +33,17 @@ class Mobscan extends StatelessWidget {
                 surface: Color(0xFFFFFFFF),
                 onSurface: Colors.black,
               ),
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Colors.white,
+                selectedItemColor: Colors.blueAccent,
+                unselectedItemColor: Colors.grey,
+                elevation: 10,
+                type: BottomNavigationBarType.fixed,
+              ),
             ),
 
             // DARK THEME
@@ -43,6 +54,17 @@ class Mobscan extends StatelessWidget {
                 primary: Colors.blueAccent,
                 surface: Color(0xFF0F1923),
                 onSurface: Colors.white,
+              ),
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Color(0xFF0F1923),
+                selectedItemColor: Colors.blueAccent,
+                unselectedItemColor: Colors.grey,
+                elevation: 10,
+                type: BottomNavigationBarType.fixed,
               ),
             ),
 

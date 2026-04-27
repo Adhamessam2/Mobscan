@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color.fromRGBO(22, 27, 34, 1),
+       // backgroundColor: const Color.fromRGBO(22, 27, 34, 1),
         currentIndex: count,
 
         onTap: (index) {
