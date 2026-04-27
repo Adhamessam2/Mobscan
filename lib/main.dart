@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/screens/home_page.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
+import 'package:mobscan/screens/main_dashboard.dart';
+import 'package:mobscan/screens/splash_Screen.dart';
 
 void main() {
   runApp(const Mobscan());
@@ -40,7 +42,7 @@ class Mobscan extends StatelessWidget {
               scaffoldBackgroundColor: const Color(0xFF071826),
               cardColor: const Color(0xFF0F1923),
               colorScheme: const ColorScheme.dark(
-                primary: Colors.blueAccent,
+                primary: Color(0xFF0F1923),
                 surface: Color(0xFF0F1923),
                 onSurface: Colors.white,
               ),

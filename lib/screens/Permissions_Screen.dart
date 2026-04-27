@@ -30,17 +30,16 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 children: [
                                     Row(
                                         children: [
-                                           // Container(
-                                               // width: 32,
-                                               // height: 32,
-                                              //  decoration: BoxDecoration(
-                                                //    color: Colors.blueAccent.withOpacity(0.15),
-                                                 //   borderRadius: BorderRadius.circular(8),
-                                                //),
-                                               // child:
-                                                const Icon(Icons.security,
-                                                    color: Colors.blueAccent, size: 22),
-                                           // ),
+                                            Container(
+                                                width: 32,
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blueAccent.withOpacity(0.15),
+                                                    borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const Icon(Icons.security,
+                                                    color: Colors.blueAccent, size: 18),
+                                            ),
                                             const SizedBox(width: 8),
                                             Text("MobScan",
                                                 style: TextStyle(
@@ -214,7 +213,6 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                             ),
 
                             const SizedBox(height: 20),
-
                         ],
                     ),
                 ),
