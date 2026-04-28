@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color.fromRGBO(22, 27, 34, 1),
+       // backgroundColor: const Color.fromRGBO(22, 27, 34, 1),
         currentIndex: count,
 
         onTap: (index) {
@@ -54,16 +54,15 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.apps_rounded, color: Appcolors.cardColor),
             label: '',
           ),
-
+          BottomNavigationBarItem(
+            icon: Icon(Icons.security, color: Appcolors.cardColor),
+            label: '',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings, color: Appcolors.cardColor),
             label: '',
           ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.security, color: Appcolors.cardColor),
-            label: '',
-          ),
         ],
       ),
     );
