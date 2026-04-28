@@ -205,7 +205,10 @@ class _AppsState extends State<Apps> {
               fontSize: 18,
             ),
           ),
-          subtitle: Text(app.package, style: TextStyle(color: Appcolors.text)),
+          subtitle: Text(
+            app.package,
+            style: TextStyle(color: Appcolors.text),
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -226,13 +229,19 @@ class _AppsState extends State<Apps> {
                     ),
                     child: Text(
                       app.risk,
-                      style: TextStyle(color: _riskColors(app.riskLevel)),
+                      style: TextStyle(
+                        color: _riskColors(app.riskLevel),
+                      ),
                     ),
                   ),
                 ],
               ),
               SizedBox(width: 10),
-              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -243,7 +252,10 @@ class _AppsState extends State<Apps> {
   Widget _appsList(List<AppModel> apps) {
     if (apps.isEmpty) {
       return Center(
-        child: Text("No Apps Found", style: TextStyle(color: Appcolors.text)),
+        child: Text(
+          "No Apps Found",
+          style: TextStyle(color: Appcolors.text),
+        ),
       );
     }
 
