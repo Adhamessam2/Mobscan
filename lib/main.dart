@@ -4,6 +4,9 @@ import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/screens/home_page.dart';
 import 'package:mobscan/screens/main_dashboard.dart';
 import 'package:mobscan/screens/splash_screen.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
+import 'package:mobscan/screens/main_dashboard.dart';
+import 'package:mobscan/screens/splash_Screen.dart';
 
 void main() {
   runApp(const Mobscan());
@@ -14,11 +17,42 @@ class Mobscan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AppsCubit(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AppsCubit()),
+        BlocProvider(create: (context) => ThemeCubit()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            themeMode: state.themeMode,
+
+            // LIGHT THEME
+            theme: ThemeData(
+              scaffoldBackgroundColor: const Color(0xFFF0F4F8),
+              cardColor: const Color(0xFFFFFFFF),
+              colorScheme: const ColorScheme.light(
+                primary: Colors.blueAccent,
+                surface: Color(0xFFFFFFFF),
+                onSurface: Colors.black,
+              ),
+            ),
+
+            // DARK THEME
+            darkTheme: ThemeData(
+              scaffoldBackgroundColor: const Color(0xFF071826),
+              cardColor: const Color(0xFF0F1923),
+              colorScheme: const ColorScheme.dark(
+                primary: Color(0xFF0F1923),
+                surface: Color(0xFF0F1923),
+                onSurface: Colors.white,
+              ),
+            ),
+
+            home: HomePage(),
+          );
+        },
       ),
     );
   }
