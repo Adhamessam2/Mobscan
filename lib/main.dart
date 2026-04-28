@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/screens/home_page.dart';
+import 'package:mobscan/screens/main_dashboard.dart';
+import 'package:mobscan/screens/splash_screen.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/screens/main_dashboard.dart';
 import 'package:mobscan/screens/splash_Screen.dart';

@@ -8,25 +8,24 @@ class Onborarding extends StatefulWidget {
   State<Onborarding> createState() => _OnborardingState();
 }
 
-int currentIndex = 0;
 final List<Map<String, String>> pages = [
   {
     "Image": "assets/onboarding/Overlay Icon for emphasis.png",
     "Title": "assets/onboarding/Text.png",
     "Description":
-        "Detect root, debugger, emulator and security risks instantly.",
+    "Detect root, debugger, emulator and security risks instantly.",
   },
   {
     "Image": "assets/onboarding/Illustration Placeholder Container.png",
     "Title": "assets/onboarding/Tex.png",
     "Description":
-        "Analyze permissions, signatures and suspicious behavior to keep your device safe.",
+    "Analyze permissions, signatures and suspicious behavior to keep your device safe.",
   },
   {
     "Image": "assets/onboarding/Overlay Icon for emphasi.png",
     "Title": "assets/onboarding/Te.png",
     "Description":
-        "Get notified when your device is at risk. Stay ahead of potential threats with real-time security monitoring.",
+    "Get notified when your device is at risk. Stay ahead of potential threats with real-time security monitoring.",
   },
 ];
 
@@ -54,16 +53,69 @@ class _OnborardingState extends State<Onborarding> {
     }
   }
 
+  void skipIntro() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => PermissionsScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A1A2F),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: skipIntro,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white24),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: const Text(
+                    "Skip Intro",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: Colors.blueAccent,
+                  ),
+                  onPressed: nextPage,
+                  child: Text(
+                    currentIndex == pages.length - 1
+                        ? "Get Started"
+                        : "Next",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Image.asset("assets/onboarding/Overlay.png"),
                 const Padding(
@@ -79,14 +131,7 @@ class _OnborardingState extends State<Onborarding> {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>  PermissionsScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: skipIntro,
                   child: const Text(
                     "Skip",
                     style: TextStyle(
@@ -98,6 +143,7 @@ class _OnborardingState extends State<Onborarding> {
                 ),
               ],
             ),
+
             Expanded(
               child: SafeArea(
                 child: PageView.builder(
@@ -129,37 +175,16 @@ class _OnborardingState extends State<Onborarding> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
                             pages.length,
-                            (index) => AnimatedContainer(
+                                (dotIndex) => AnimatedContainer(
                               duration: const Duration(milliseconds: 300),
                               margin: const EdgeInsets.symmetric(horizontal: 4),
-                              width: currentIndex == index ? 20 : 8,
+                              width: currentIndex == dotIndex ? 20 : 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: currentIndex == index
+                                color: currentIndex == dotIndex
                                     ? Colors.blueAccent
                                     : Colors.white24,
                                 borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                              backgroundColor: Colors.blueAccent,
-                            ),
-                            onPressed: nextPage,
-                            child: Text(
-                              currentIndex == pages.length - 1
-                                  ? "Get Started"
-                                  : "Next",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),

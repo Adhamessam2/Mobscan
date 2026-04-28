@@ -25,12 +25,11 @@ class _AppsState extends State<Apps> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Appcolors.background,
       appBar: AppBar(
         leading: Image.asset("assets/Container.png"),
-        title: Text("MobScan", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        title: Text("MobScan", style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
             onPressed: () {},
@@ -39,7 +38,6 @@ class _AppsState extends State<Apps> {
         ],
         forceMaterialTransparency: true,
       ),
-
       body: SafeArea(
         child: Column(
           children: [
@@ -50,9 +48,9 @@ class _AppsState extends State<Apps> {
                 onChanged: (value) {
                   context.read<AppsCubit>().search(value);
                 },
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
+                style: TextStyle(color: Colors.white, fontSize: 18),
                 decoration: InputDecoration(
-                  fillColor: Theme.of(context).colorScheme.surface,
+                  fillColor: Appcolors.searchBarColor,
                   filled: true,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -63,9 +61,7 @@ class _AppsState extends State<Apps> {
                 ),
               ),
             ),
-
             SizedBox(height: 20),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -82,13 +78,11 @@ class _AppsState extends State<Apps> {
                 ],
               ),
             ),
-
             SizedBox(height: 20),
-
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: Appcolors.searchBarColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -100,11 +94,9 @@ class _AppsState extends State<Apps> {
                 ],
               ),
             ),
-
             SizedBox(height: 10),
             Divider(color: Appcolors.searchBarColor),
             SizedBox(height: 10),
-
             Expanded(
               child: BlocBuilder<AppsCubit, AppsState>(
                 builder: (BuildContext context, state) {
@@ -191,7 +183,7 @@ class _AppsState extends State<Apps> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary ,
+        color: Appcolors.searchBarColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: GestureDetector(
@@ -213,7 +205,10 @@ class _AppsState extends State<Apps> {
               fontSize: 18,
             ),
           ),
-          subtitle: Text(app.package, style: TextStyle(color: Appcolors.text)),
+          subtitle: Text(
+            app.package,
+            style: TextStyle(color: Appcolors.text),
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -234,13 +229,19 @@ class _AppsState extends State<Apps> {
                     ),
                     child: Text(
                       app.risk,
-                      style: TextStyle(color: _riskColors(app.riskLevel)),
+                      style: TextStyle(
+                        color: _riskColors(app.riskLevel),
+                      ),
                     ),
                   ),
                 ],
               ),
               SizedBox(width: 10),
-              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -251,7 +252,10 @@ class _AppsState extends State<Apps> {
   Widget _appsList(List<AppModel> apps) {
     if (apps.isEmpty) {
       return Center(
-        child: Text("No Apps Found", style: TextStyle(color: Appcolors.text)),
+        child: Text(
+          "No Apps Found",
+          style: TextStyle(color: Appcolors.text),
+        ),
       );
     }
 
