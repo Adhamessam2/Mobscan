@@ -213,7 +213,6 @@ class _MainDashboardState extends State<MainDashboard> {
                 ),
               ],
             ),
-
             Expanded(
               child:
                   BlocBuilder<AppsCubit,AppsState>(builder: (BuildContext context,state) {
@@ -223,8 +222,8 @@ class _MainDashboardState extends State<MainDashboard> {
 
                       );
                     }
-                    if(state.status == AppStatus.success)
-                    return GridView.builder(
+                    if(state.status == AppStatus.success) {
+                      return GridView.builder(
                       scrollDirection: Axis.vertical,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -244,8 +243,9 @@ class _MainDashboardState extends State<MainDashboard> {
                      item.smallExplain);
                       }
                     );
-                    else
+                    } else {
                       return Text('notfound');
+                    }
                   }
                   ),
             )]
