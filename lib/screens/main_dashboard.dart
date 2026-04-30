@@ -11,8 +11,7 @@ import 'package:mobscan/screens/home_page.dart';
 import '../controllers/security_controller/security_cubit.dart';
 
 class MainDashboard extends StatefulWidget {
-  String username;
-  String _result = '';
+  final String username;
 
 
   MainDashboard({super.key, this.username = 'User'});
@@ -47,14 +46,14 @@ class _MainDashboardState extends State<MainDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff0A0E14),
+      backgroundColor: const Color(0xff0A0E14),
 
       appBar: AppBar(
         toolbarHeight: 70,
-        backgroundColor: Color(0xff0A0E14),
+        backgroundColor: const Color(0xff0A0E14),
         leadingWidth: 140,
         leading: Container(
-          padding: EdgeInsets.only(left: 16),
+          padding: const EdgeInsets.only(left: 16),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -80,13 +79,13 @@ class _MainDashboardState extends State<MainDashboard> {
           GestureDetector(
             onTap: () {},
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
-                color: Color(0xFF111827),
+                color: const Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.notifications_none_outlined,
                 size: 30,
                 color: Color(0xFF007BFF),
@@ -98,17 +97,13 @@ class _MainDashboardState extends State<MainDashboard> {
             onTap: () {
             },
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: Color(0xFF111827),
+                color: const Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                Icons.menu,
-                size: 30,
-                color: Color(0xFF007BFF),
-              ),
+              child: const Icon(Icons.menu, size: 30, color: Color(0xFF007BFF)),
             ),
           ),
         ],
@@ -117,13 +112,13 @@ class _MainDashboardState extends State<MainDashboard> {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
 
             Column(
               children: [
                 Text(
-                  'Hello,${widget.username}',
-                  style: TextStyle(
+                  'Hello, ${widget.username}',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                     fontSize: 25,
@@ -134,7 +129,7 @@ class _MainDashboardState extends State<MainDashboard> {
                   height: 42,
                   width: 250,
                   decoration: BoxDecoration(
-                    color: Color.fromRGBO(255, 77, 77, 0.1),
+                    color: const Color.fromRGBO(255, 77, 77, 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -150,7 +145,7 @@ class _MainDashboardState extends State<MainDashboard> {
               ],
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
         Stack(
           alignment: Alignment.center,
@@ -208,16 +203,14 @@ class _MainDashboardState extends State<MainDashboard> {
                     ),
                     Text(
                       'SECURITY SCORE',
-                      style: TextStyle(
-                        color: Color.fromRGBO(148, 163, 184, 1),
-                      ),
+                      style: TextStyle(color: Color.fromRGBO(148, 163, 184, 1)),
                     ),
                   ],
                 ),
               ],
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             GestureDetector(
               onTap: () {
@@ -227,7 +220,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 width: 358,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: Color(0xFF007BFF),
+                  color: const Color(0xFF007BFF),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
@@ -264,14 +257,15 @@ class _MainDashboardState extends State<MainDashboard> {
               },
             ),
             Row(
-              children: [
+              children: const [
                 Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                    'SECURITY MODELS',
+                    'SECURITY MODULES',
                     style: TextStyle(
                       color: Color.fromRGBO(100, 116, 139, 1),
-                      fontSize: 19,
+                      fontSize: 14,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ),
@@ -315,15 +309,16 @@ class _MainDashboardState extends State<MainDashboard> {
    }
 
 }
-Widget Text_color(String example){
+
+Widget textColor(String text) {
   return Text(
-'$example',
-style:TextStyle(
-color:Colors.redAccent,
-  fontSize: 18,
-  fontWeight: FontWeight.bold,
-),
-);
+    text,
+    style: const TextStyle(
+      color: Colors.redAccent,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+  );
 }
 Widget report_container(String svg,Color svgcolor,String behaviour,Color behavcolor,String explain,String smallexplain){
   return Container(
@@ -332,48 +327,63 @@ Widget report_container(String svg,Color svgcolor,String behaviour,Color behavco
     height: 30,
     width: 30,
     decoration: BoxDecoration(
-      color: Color.fromRGBO(22, 27, 34, 1),
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.05),
+      color: const Color.fromRGBO(22, 27, 34, 1),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: const Color.fromRGBO(255, 255, 255, 0.05),
         width: 1,
         style: BorderStyle.solid,
       ),
     ),
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width:30,
-              height: 50,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: svgcolor,
-                borderRadius: BorderRadius.circular(5),
+                color: svgColor,
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Center(
-                child: SvgPicture.asset(
-                  '$svg',
-                  height: 28,
-                ),
+              child: Center(child: SvgPicture.asset(svg, height: 20)),
+            ),
+            Text(
+              behaviour,
+              style: TextStyle(
+                color: behavColor,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            Text('$behaviour',style: TextStyle(color: behavcolor),),
-
           ],
         ),
-        SizedBox(height: 10,),
-        Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('$explain',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600),),
-                  Text('$smallexplain',style: TextStyle(color:Color.fromRGBO(100, 116, 139, 1) ),)
-                ],
+        const SizedBox(height: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
-            ] ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                color: Color.fromRGBO(100, 116, 139, 1),
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
       ],
     ),
   );
