@@ -26,17 +26,15 @@ class _AppsState extends State<Apps> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cubit = context.read<AppsCubit>();
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         leading: Image.asset("assets/Container.png"),
-        title: Text("MobScan", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.notifications_outlined),
-          ),
-        ],
+        title: Text(
+          "MobScan",
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
         forceMaterialTransparency: true,
       ),
 
@@ -50,7 +48,10 @@ class _AppsState extends State<Apps> {
                 onChanged: (value) {
                   context.read<AppsCubit>().search(value);
                 },
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 18,
+                ),
                 decoration: InputDecoration(
                   fillColor: Theme.of(context).colorScheme.surface,
                   filled: true,
@@ -68,18 +69,29 @@ class _AppsState extends State<Apps> {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Text("Total apps :", style: TextStyle(color: Appcolors.text)),
-                  Text("120", style: TextStyle(color: Colors.white)),
-                  SizedBox(width: 20),
-                  Text("flagged :", style: TextStyle(color: Appcolors.text)),
-                  Text("8", style: TextStyle(color: Colors.red)),
-                  SizedBox(width: 105),
-                  Icon(Icons.circle, color: Colors.blue, size: 12),
-                  SizedBox(width: 5),
-                  Text("scanning...", style: TextStyle(color: Appcolors.text)),
-                ],
+              child: BlocBuilder<AppsCubit, AppsState>(
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Text(
+                        "Total apps :${state.allApps.length}",
+                        style: TextStyle(color: Appcolors.text),
+                      ),
+                      SizedBox(width: 20),
+                      Text(
+                        "flagged :${cubit.riskyApps.length}",
+                        style: TextStyle(color: Appcolors.text),
+                      ),
+                      Spacer(),
+                      Icon(Icons.circle, color: Colors.blue, size: 12),
+                      SizedBox(width: 5),
+                      Text(
+                        "scanning...",
+                        style: TextStyle(color: Appcolors.text),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
 
@@ -122,9 +134,21 @@ class _AppsState extends State<Apps> {
                     return CarouselSlider(
                       carouselController: carouselController,
                       items: [
-                        _appsList(state.allApps),
-                        _appsList(cubit.safeApps),
-                        _appsList(cubit.riskyApps),
+                        _appsList(
+                          state.allApps,
+                          cubit.safeApps,
+                          cubit.riskyApps,
+                        ),
+                        _appsList(
+                          state.allApps,
+                          cubit.safeApps,
+                          cubit.riskyApps,
+                        ),
+                        _appsList(
+                          state.allApps,
+                          cubit.safeApps,
+                          cubit.riskyApps,
+                        ),
                       ],
                       options: CarouselOptions(
                         height: double.infinity,
@@ -149,10 +173,10 @@ class _AppsState extends State<Apps> {
   }
 
   Widget _categoryCard(
-      String text,
-      int index,
-      CarouselSliderController carouselController,
-      ) {
+    String text,
+    int index,
+    CarouselSliderController carouselController,
+  ) {
     return Expanded(
       child: BlocBuilder<AppsCubit, AppsState>(
         builder: (context, state) {
@@ -176,9 +200,7 @@ class _AppsState extends State<Apps> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(text, style: TextStyle(color: Colors.white)),
-                ],
+                children: [Text(text, style: TextStyle(color: Colors.white))],
               ),
             ),
           );
@@ -191,56 +213,65 @@ class _AppsState extends State<Apps> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary ,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(10),
       ),
       child: GestureDetector(
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const ThreatDetailScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const ThreatDetailScreen()),
           );
         },
         child: ListTile(
-          leading: Image.asset(app.image),
+          leading: app.icon != null
+              ? Image.memory(
+                  app.icon!,
+                  fit: BoxFit.cover,
+                  gaplessPlayback: true,
+                )
+              : Icon(Icons.apps, color: Colors.white, size: 40),
           title: Text(
-            app.name,
+            app.name ?? "",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
           ),
-          subtitle: Text(app.package, style: TextStyle(color: Appcolors.text)),
-          trailing: Row(
+          subtitle: Text(
+            app.package ?? "",
+            style: TextStyle(color: Appcolors.text),
+          ),
+          trailing: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                children: [
-                  Text(
-                    "${app.riskLevel}%",
-                    style: TextStyle(
-                      color: _riskColors(app.riskLevel),
-                      fontSize: 16,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _riskColors(app.riskLevel).withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      app.risk,
-                      style: TextStyle(color: _riskColors(app.riskLevel)),
-                    ),
-                  ),
-                ],
+              Text(
+                "${app.riskLevel}%",
+                style: TextStyle(
+                  color: _riskColors(app.riskLevel ?? 0),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(width: 10),
-              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _riskColors(app.riskLevel ?? 0).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  app.riskLevel! > 50 ? "High Risk" : "Safe", // Keep it short!
+                  style: TextStyle(
+                    color: _riskColors(app.riskLevel ?? 0),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -248,10 +279,30 @@ class _AppsState extends State<Apps> {
     );
   }
 
-  Widget _appsList(List<AppModel> apps) {
+  Widget _appsList(
+    List<AppModel> apps,
+    List<AppModel> safeApps,
+    List<AppModel> riskyApps,
+  ) {
     if (apps.isEmpty) {
       return Center(
         child: Text("No Apps Found", style: TextStyle(color: Appcolors.text)),
+      );
+    }
+    if (riskyApps.isEmpty) {
+      return Center(
+        child: Text(
+          "No Risky Apps Found",
+          style: TextStyle(color: Appcolors.text),
+        ),
+      );
+    }
+    if (safeApps.isEmpty) {
+      return Center(
+        child: Text(
+          "No Safe Apps Found",
+          style: TextStyle(color: Appcolors.text),
+        ),
       );
     }
 
