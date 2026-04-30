@@ -4,11 +4,16 @@ part of 'security_cubit.dart';
 sealed class SecurityState{
 }
 class SecurityLoading extends SecurityState {
-  SecurityLoading();
+  final int? progress;
+
+  SecurityLoading([this.progress]);
 }
 class SecuritySuccess extends SecurityState {
   final List<ScanResult> result;
-   SecuritySuccess(this.result);
+  final int score;
+  final DateTime? lastScan;
+  int? threats;
+   SecuritySuccess(this.result,this.score,this.lastScan,this.threats);
 }
 class SecurityError extends SecurityState {
   final String message;

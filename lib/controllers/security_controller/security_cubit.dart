@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'package:meta/meta.dart';
 
-import '../../../models/Scan_result.dart';
+import '../../models/Scan_result.dart';
 
 part 'security_state.dart';
 
@@ -13,6 +13,7 @@ class SecurityCubit extends Cubit<SecurityState> {
 
   List<ScanResult> results = [];
   int threats = 0;
+  int? score;
 
   static const platform = MethodChannel('mobscan/security');
 
@@ -123,8 +124,7 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-
-    emit(SecuritySuccess(results));
+    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
 
   // =========================
@@ -162,7 +162,40 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
+    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
+  }
 
-    emit(SecuritySuccess(results));
+  int calculateScore() {
+    int score = 100;
+
+    for (var r in results) {
+      switch (r.behaviour) {
+        case "High":
+          score -= 30;
+          break;
+        case "Medium":
+          score -= 15;
+          break;
+        case "Frida Hook":
+          score -= 40;
+          break;
+        case "Secure":
+          score -= 0;
+          break;
+      }
+    }
+    return score.clamp(0, 100);
+  }
+  Future<void> fullScan() async {
+    results = [];
+    threats = 0;
+    for (int i = 0; i <= 100; i++) {
+      emit(SecurityLoading(i));
+
+      await Future.delayed(Duration(milliseconds: 50));
+    }
+    checkFridalog();
+    checkRootJailbreak();
+    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
 }

@@ -5,12 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
+import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 import 'package:mobscan/models/Scan_result.dart';
 import 'package:mobscan/screens/home_page.dart';
+import '../controllers/security_controller/security_cubit.dart';
 
 class MainDashboard extends StatefulWidget {
   String username;
   String _result = '';
+
 
   MainDashboard({super.key, this.username = 'User'});
 
@@ -19,7 +22,28 @@ class MainDashboard extends StatefulWidget {
 }
 
 class _MainDashboardState extends State<MainDashboard> {
+  int count = 0;
   int _selectedIndex = 0;
+  String formatTime(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
+
+    if (diff.inSeconds < 60) {
+      return "Just now";
+    } else if (diff.inMinutes < 60) {
+      return "${diff.inMinutes} minutes ago";
+    } else if (diff.inHours < 24) {
+      return "${diff.inHours} hours ago";
+    } else {
+      return "${diff.inDays} days ago";
+    }
+  }
+  Widget circle() {
+    return CircularProgressIndicator(
+      color: Color(0xFF007BFF),
+      strokeWidth: 6,
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +59,7 @@ class _MainDashboardState extends State<MainDashboard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
-                "lib/assets/icons/icon.svg",
+                "assets/icons/icon.svg",
                 width: 20,
                 height: 25,
               ),
@@ -116,7 +140,7 @@ class _MainDashboardState extends State<MainDashboard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset('lib/assets/icons/plot.svg'),
+                      SvgPicture.asset('assets/icons/plot.svg'),
                       SizedBox(width: 5),
                       Text_color('Device Status: '),
                       Text_color('At Risk'),
@@ -128,26 +152,59 @@ class _MainDashboardState extends State<MainDashboard> {
 
             SizedBox(height: 10),
 
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  height: 165,
-                  width: 170,
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF007BFF),
-                    strokeWidth: 15,
-                  ),
-                ),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              height: 165,
+              width: 170,
+              child:  BlocBuilder<SecurityCubit, SecurityState>(
+                builder: (context, state) {
+                  if (state is SecurityLoading) {
+                    return CircularProgressIndicator(
+                      color: Color(0xFF007BFF),
+                      strokeWidth: 15,
+                    );
+                  }
+
+                  if (state is SecuritySuccess) {
+                    return CircularProgressIndicator(
+
+                      value: state.score / 100,
+                      color: Color(0xFF007BFF),
+                      strokeWidth: 8,
+                    );
+                  }
+
+                  return SizedBox();
+                },
+              )
+            ),
                 Column(
                   children: [
-                    Text(
-                      '78%',
-                      style: TextStyle(
-                        color: Color(0xFF007BFF),
-                        fontSize: 50,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    BlocBuilder<SecurityCubit, SecurityState>(
+                      builder: (context, state) {
+                        if (state is SecuritySuccess) {
+                          return Text(
+                            '${state.score}',
+                            style: TextStyle(
+                              color: Color(0xFF007BFF),
+                              fontSize: 50,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          );
+                        }
+                        if(state is SecurityLoading){
+                          return
+                            Text('${state.progress}%',
+                              style: TextStyle(
+                                color: Color(0xFF007BFF),
+                                fontSize: 50,
+                                fontWeight: FontWeight.w900,
+                              ),);
+                        }
+                        return Text('');
+                      },
                     ),
                     Text(
                       'SECURITY SCORE',
@@ -164,8 +221,7 @@ class _MainDashboardState extends State<MainDashboard> {
 
             GestureDetector(
               onTap: () {
-                context.read<AppsCubit>().checkRootJailbreak();
-               context.read<AppsCubit>().checkFridalog();
+                context.read<SecurityCubit>().fullScan();
                 },
               child: Container(
                 width: 358,
@@ -178,7 +234,7 @@ class _MainDashboardState extends State<MainDashboard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset('lib/assets/icons/scan.svg'),
+                      SvgPicture.asset('assets/icons/scan.svg'),
                       SizedBox(width: 10),
                       Text(
                         'Scan Now',
@@ -193,12 +249,20 @@ class _MainDashboardState extends State<MainDashboard> {
                 ),
               ),
             ),
-
-            Text(
-              'Last scan: 2 hours . ${context.read<AppsCubit>().results.length} threats found',
-              style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+            BlocBuilder<SecurityCubit, SecurityState>(
+              builder: (context, state) {
+                if (state is SecuritySuccess) {
+                  return Text(
+                    'Last scan: ${formatTime(state.lastScan!)} • ${state?.threats??0} threats found',
+                    style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+                  );
+                }
+                return Text(
+                  'scanning...',
+                  style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+                );
+              },
             ),
-
             Row(
               children: [
                 Padding(
@@ -215,14 +279,11 @@ class _MainDashboardState extends State<MainDashboard> {
             ),
             Expanded(
               child:
-                  BlocBuilder<AppsCubit,AppsState>(builder: (BuildContext context,state) {
-                    final res = context.read<AppsCubit>();
-                    if(state.status == AppStatus.loading){
-                      return CircularProgressIndicator(
-
-                      );
+                  BlocBuilder<SecurityCubit,SecurityState>(builder: (BuildContext context,state) {
+                    final res = context.read<SecurityCubit>();
+                    if(state is SecurityLoading){
                     }
-                    if(state.status == AppStatus.success) {
+                    if(state is SecuritySuccess) {
                       return GridView.builder(
                       scrollDirection: Axis.vertical,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -231,9 +292,9 @@ class _MainDashboardState extends State<MainDashboard> {
                         crossAxisSpacing: 10,
                         childAspectRatio: 1.5,
                       ),
-                      itemCount: state.scanResults.length,
+                      itemCount: res.results.length,
                       itemBuilder: (context, index) {
-                   final item = state.scanResults[index];
+                   final item = res.results[index];
                      return report_container(
                          item.svg,
                         item.svgColor,
@@ -244,7 +305,7 @@ class _MainDashboardState extends State<MainDashboard> {
                       }
                     );
                     } else {
-                      return Text('notfound');
+                      return Text('');
                     }
                   }
                   ),
