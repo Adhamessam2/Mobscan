@@ -60,12 +60,13 @@ class _MainDashboardState extends State<MainDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xff0A0E14),
+      backgroundColor: theme.scaffoldBackgroundColor,
 
       appBar: AppBar(
         toolbarHeight: 70,
-        backgroundColor: const Color(0xff0A0E14),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         leadingWidth: 140,
         leading: Container(
           padding: const EdgeInsets.only(left: 16),
@@ -93,7 +94,7 @@ class _MainDashboardState extends State<MainDashboard> {
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF111827),
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -110,7 +111,7 @@ class _MainDashboardState extends State<MainDashboard> {
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: const Color(0xFF111827),
+                color:Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.menu, size: 30, color: Color(0xFF007BFF)),
@@ -128,8 +129,8 @@ class _MainDashboardState extends State<MainDashboard> {
               children: [
                 Text(
                   'Hello, ${widget.username}',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color:Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w700,
                     fontSize: 25,
                   ),
@@ -257,6 +258,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 ),
                 children: [
                   reportContainer(
+                     context,
                     'assets/icons/secret.svg',
                     const Color.fromRGBO(255, 77, 77, 0.1),
                     'DETECTED',
@@ -265,6 +267,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'Unsafe environment',
                   ),
                   reportContainer(
+                     context,
                     'assets/icons/debug.svg',
                     const Color(0xFF111827),
                     'SECURE',
@@ -273,6 +276,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'No active session',
                   ),
                   reportContainer(
+                     context,
                     'assets/icons/emulator.svg',
                     const Color(0xFF111827),
                     'SECURE',
@@ -281,6 +285,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'Physical hardware',
                   ),
                   reportContainer(
+                     context,
                     'assets/icons/hook.svg',
                     const Color.fromRGBO(255, 77, 77, 0.1),
                     'WARNING',
@@ -289,6 +294,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'Framework detected',
                   ),
                   reportContainer(
+                     context,
                     'assets/icons/antivirus.svg',
                     const Color(0xFF111827),
                     'CLEANED',
@@ -318,6 +324,7 @@ Widget textColor(String text) {
 }
 
 Widget reportContainer(
+BuildContext context,
   String svg,
   Color svgColor,
   String behaviour,
@@ -329,7 +336,7 @@ Widget reportContainer(
     padding: const EdgeInsets.all(12),
     margin: const EdgeInsets.all(6),
     decoration: BoxDecoration(
-      color: const Color.fromRGBO(22, 27, 34, 1),
+      color: Theme.of(context).colorScheme.primary,
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
         color: const Color.fromRGBO(255, 255, 255, 0.05),

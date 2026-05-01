@@ -30,7 +30,7 @@ class Mobscan extends StatelessWidget {
               scaffoldBackgroundColor: const Color(0xFFF0F4F8),
               cardColor: const Color(0xFFFFFFFF),
               colorScheme: const ColorScheme.light(
-                primary: Colors.blueAccent,
+                primary:Color(0xFF007BFF),
                 surface: Color(0xFFFFFFFF),
                 onSurface: Colors.black,
               ),

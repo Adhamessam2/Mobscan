@@ -125,7 +125,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1923),
+      backgroundColor:Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -134,15 +134,15 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    icon: Icon(Icons.arrow_back_ios, color:Theme.of(context).colorScheme.onSurface,),
                     onPressed: () => _snack('Back', Colors.grey),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
                         'Threat Detail',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -150,7 +150,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.share, color: Colors.white),
+                    icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface,),
                     onPressed: () => _snack('Link copied!', Colors.blue),
                   ),
                 ],
@@ -203,10 +203,10 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'SuperFlashlight',
                       style: TextStyle(
-                        color: Colors.white,
+                        color:Theme.of(context).colorScheme.onSurface,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -214,7 +214,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                     const SizedBox(height: 4),
                     const Text(
                       'com.utility.bright.flash • v2.4.1',
-                      style: TextStyle(color: Colors.grey, fontSize: 13),
+                      style: TextStyle(color: Colors.blueGrey, fontSize: 13),
                     ),
                     const SizedBox(height: 24),
                     const Text(
@@ -228,22 +228,22 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                     const Text(
                       'THREAT SCORE',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: Colors.blueGrey,
                         fontSize: 12,
                         letterSpacing: 2,
                       ),
                     ),
                     const SizedBox(height: 28),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          Icon(Icons.shield, color: Colors.red, size: 18),
-                          SizedBox(width: 8),
+                          const Icon(Icons.shield, color: Colors.red, size: 18),
+                          const SizedBox(width: 8),
                           Text(
                             'Why is this risky?',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
@@ -290,12 +290,12 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Recommended Actions',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -385,7 +385,7 @@ class _ActionCard extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -443,7 +443,7 @@ class RiskCard extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color:Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isOpen ? color.withValues(alpha: 0.5) : Colors.transparent,
