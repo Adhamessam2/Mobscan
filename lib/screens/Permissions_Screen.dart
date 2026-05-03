@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobscan/screens/home_page.dart';
 
 class PermissionsScreen extends StatefulWidget {
     const PermissionsScreen({super.key});
@@ -25,9 +26,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                         children: [
 
                             // HEADER
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
+
                                     Row(
                                         children: [
                                             Container(
@@ -48,21 +47,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                                     fontWeight: FontWeight.w600)),
                                         ],
                                     ),
-                                    Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                            color: theme.cardColor,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                                color: theme.colorScheme.onSurface.withOpacity(0.1)),
-                                        ),
-                                        child: Icon(Icons.help_outline,
-                                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                                            size: 18),
-                                    ),
-                                ],
-                            ),
+
 
                             const SizedBox(height: 30),
 
@@ -126,15 +111,6 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                                 height: 1.5),
                                         ),
                                         const SizedBox(height: 12),
-                                        GestureDetector(
-                                            onTap: () {},
-                                            child: const Text("VIEW PRIVACY POLICY",
-                                                style: TextStyle(
-                                                    color: Colors.blueAccent,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 0.8)),
-                                        ),
                                     ],
                                 ),
                             ),
@@ -190,7 +166,12 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 width: double.infinity,
                                 height: 55,
                                 child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => HomePage()),
+                                        );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.blueAccent,
                                         shape: RoundedRectangleBorder(

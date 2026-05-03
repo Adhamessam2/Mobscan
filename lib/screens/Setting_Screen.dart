@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
+import 'package:mobscan/screens/home_page.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -28,9 +29,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // HEADER
             Row(
               children: [
-                Icon(Icons.arrow_back_ios,
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios,
                     color: theme.colorScheme.onSurface.withOpacity(0.7),
-                    size: 18),
+                    size: 18,
+                  ),
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                          (route) => false,
+                    );
+                  },
+                ),
                 const Spacer(),
                 Text("Settings",
                     style: TextStyle(
@@ -122,33 +134,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 30),
 
             // SUPPORT & INFO
-            _section(theme, "SUPPORT & INFO", [
-              _tile(theme, Icons.info_outline, "About MobScan", null),
-              _tile(theme, Icons.privacy_tip_outlined, "Privacy Policy", null,
-                  trailing: Icon(Icons.open_in_new,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5))),
-              _tile(theme, Icons.description_outlined, "Terms of Service", null,
-                  trailing: Icon(Icons.open_in_new,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5))),
-            ]),
+
 
             const SizedBox(height: 30),
 
-            // LOGOUT
-            Container(
-              height: 55,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: Colors.blueAccent.withOpacity(.3)),
-              ),
-              child: Center(
-                child: Text("Logout",
-                    style: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
-                        fontWeight: FontWeight.w500)),
-              ),
-            ),
 
             const SizedBox(height: 20),
 

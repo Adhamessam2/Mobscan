@@ -195,7 +195,7 @@ class _AppsState extends State<Apps> {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               margin: EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: isSelected ? Appcolors.cardColor : Colors.transparent,
+                color: isSelected ? Colors.blue : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
