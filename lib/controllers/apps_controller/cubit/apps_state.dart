@@ -7,11 +7,15 @@ class AppsState {
   final AppStatus status;
   final List<AppModel> allApps;
   final int selectedCategoryIndex;
+  final bool queryInstalledApps;
+  final bool storageAccess;
 
   const AppsState._({
     required this.status,
     required this.allApps,
     required this.selectedCategoryIndex,
+    required this.queryInstalledApps,
+    required this.storageAccess,
   });
 
   factory AppsState.initial() {
@@ -19,6 +23,8 @@ class AppsState {
       status: AppStatus.intial,
       allApps: [],
       selectedCategoryIndex: 0,
+      queryInstalledApps: false,
+      storageAccess: false,
     );
   }
 
@@ -31,7 +37,10 @@ class AppsState {
       status: status ?? this.status,
       allApps: allApps ?? this.allApps,
       selectedCategoryIndex:
-          selectedCategoryIndex ?? this.selectedCategoryIndex,
+      selectedCategoryIndex ?? this.selectedCategoryIndex,
+      queryInstalledApps: queryInstalledApps ?? this.queryInstalledApps,
+      storageAccess: storageAccess ?? this.storageAccess,
     );
   }
+
 }
