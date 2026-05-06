@@ -24,6 +24,12 @@ class _AppsState extends State<Apps> {
   TextEditingController searchController = TextEditingController();
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cubit = context.read<AppsCubit>();
@@ -61,6 +67,9 @@ class _AppsState extends State<Apps> {
                   hintText: "Search installed applications...",
                   hintStyle: TextStyle(color: Appcolors.text),
                   prefixIcon: Icon(Icons.search),
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(icon: Icon(Icons.clear), onPressed: () {})
+                      : null,
                 ),
               ),
             ),
@@ -134,21 +143,9 @@ class _AppsState extends State<Apps> {
                     return CarouselSlider(
                       carouselController: carouselController,
                       items: [
-                        _appsList(
-                          state.allApps,
-                          cubit.safeApps,
-                          cubit.riskyApps,
-                        ),
-                        _appsList(
-                          state.allApps,
-                          cubit.safeApps,
-                          cubit.riskyApps,
-                        ),
-                        _appsList(
-                          state.allApps,
-                          cubit.safeApps,
-                          cubit.riskyApps,
-                        ),
+                        _appsList(state.allApps, "Apps"),
+                        _appsList(cubit.safeApps, "Safe Apps"),
+                        _appsList(cubit.riskyApps, "Risky Apps"),
                       ],
                       options: CarouselOptions(
                         height: double.infinity,
@@ -279,28 +276,18 @@ class _AppsState extends State<Apps> {
     );
   }
 
-  Widget _appsList(
-    List<AppModel> apps,
-    List<AppModel> safeApps,
-    List<AppModel> riskyApps,
-  ) {
+  Widget _appsList(List<AppModel> apps, String label) {
     if (apps.isEmpty) {
-      return Center(
-        child: Text("No Apps Found", style: TextStyle(color: Appcolors.text)),
-      );
-    }
-    if (riskyApps.isEmpty) {
-      return Center(
-        child: Text(
-          "No Risky Apps Found",
-          style: TextStyle(color: Appcolors.text),
-        ),
-      );
-    }
-    if (safeApps.isEmpty) {
+      final isSearching = context
+          .read<AppsCubit>()
+          .state
+          .searchQuery
+          .isNotEmpty;
       return Center(
         child: Text(
-          "No Safe Apps Found",
+          isSearching
+              ? "No $label found matching your search"
+              : "No $label found",
           style: TextStyle(color: Appcolors.text),
         ),
       );
