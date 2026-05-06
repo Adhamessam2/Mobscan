@@ -10,14 +10,13 @@ class RiskCalculatorService {
     'android.permission.SYSTEM_ALERT_WINDOW', // Drawing over other apps
   ];
 
-  // 2. THE SMART MATRIX: What permissions are completely reasonable for each category?
   // 2. THE SMART MATRIX: Comprehensive expected permissions by category
   final Map<String, List<String>> expectedPermissions = {
     // Media & Communication
     'Social': [
       'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
-      'android.permission.ACCESS_FINE_LOCATION', // Often used for geotagging posts
+      'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.ACCESS_COARSE_LOCATION',
     ],
     'Communication': [
@@ -74,12 +73,6 @@ class RiskCalculatorService {
       'android.permission.CAMERA', // For video lectures/proctoring
       'android.permission.RECORD_AUDIO',
     ],
-
-    // Categories that are strictly locked down (They get an empty list, meaning ANY dangerous permission flags them)
-    // 'Game': [],
-    // 'Productivity': [],
-    // 'News': [],
-    // 'Books_and_reference': [],
   };
 
   /// Calculates the risk score and returns a Map with the score and the reason.
