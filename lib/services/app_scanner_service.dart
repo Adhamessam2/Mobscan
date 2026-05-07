@@ -27,10 +27,8 @@ class AppScannerService {
             {'packageName': app.packageName},
           );
           perms = result.cast<String>();
-        } on PlatformException catch (e) {
-          print(
-            "Failed to get permissions for ${app.packageName}: ${e.message}",
-          );
+        } on PlatformException catch (_) {
+          // Silent failure for permission fetching on specific apps
         }
 
         // 4. Feed the Native data into your Risk Engine
@@ -53,8 +51,7 @@ class AppScannerService {
       // Sort highest risk to the top
       scannedResults.sort((a, b) => b.riskLevel!.compareTo(a.riskLevel!));
       return scannedResults;
-    } catch (e) {
-      print('Error scanning apps: $e');
+    } catch (_) {
       return [];
     }
   }

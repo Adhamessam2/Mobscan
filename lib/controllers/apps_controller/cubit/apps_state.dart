@@ -6,6 +6,7 @@ enum AppStatus { intial, loading, success, error, failed }
 class AppsState {
   final AppStatus status;
   final List<AppModel> allApps;
+  final String searchQuery;
   final int selectedCategoryIndex;
   final bool queryInstalledApps;
   final bool storageAccess;
@@ -13,6 +14,7 @@ class AppsState {
   const AppsState._({
     required this.status,
     required this.allApps,
+    required this.searchQuery,
     required this.selectedCategoryIndex,
     required this.queryInstalledApps,
     required this.storageAccess,
@@ -22,6 +24,7 @@ class AppsState {
     return const AppsState._(
       status: AppStatus.intial,
       allApps: [],
+      searchQuery: '',
       selectedCategoryIndex: 0,
       queryInstalledApps: false,
       storageAccess: false,
@@ -31,11 +34,13 @@ class AppsState {
   AppsState copyWith({
     AppStatus? status,
     List<AppModel>? allApps,
+    String? searchQuery,
     int? selectedCategoryIndex,
   }) {
     return AppsState._(
       status: status ?? this.status,
       allApps: allApps ?? this.allApps,
+      searchQuery: searchQuery ?? this.searchQuery,
       selectedCategoryIndex:
       selectedCategoryIndex ?? this.selectedCategoryIndex,
       queryInstalledApps: queryInstalledApps ?? this.queryInstalledApps,
