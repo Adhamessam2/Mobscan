@@ -1,160 +1,158 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/settings_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/screens/home_page.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool autoScan = false;
-  bool saveToCloud = false;
-  bool notifications = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
+    return BlocProvider(
+      create: (_) => SettingsCubit(),
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
 
-            // HEADER
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
-                    size: 18,
-                  ),
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                          (route) => false,
-                    );
-                  },
-                ),
-                const Spacer(),
-                Text("Settings",
-                    style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600)),
-                const Spacer(),
-                const SizedBox(width: 18),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-            Divider(
-                color: theme.colorScheme.onSurface.withOpacity(0.06),
-                height: 1),
-            const SizedBox(height: 20),
-
-            // SCANNING SETTINGS
-            _section(theme, "SCANNING SETTINGS", [
-              _tile(
-                theme,
-                Icons.camera_alt_outlined,
-                "Auto Scan",
-                "Auto-detect document edges",
-                trailing: Switch(
-                  value: autoScan,
-                  onChanged: (value) => setState(() => autoScan = value),
-                  activeColor: Colors.blueAccent,
-                ),
-              ),
-              _tile(
-                theme,
-                Icons.cloud_upload_outlined,
-                "Save to Cloud",
-                "Sync scans immediately",
-                trailing: Switch(
-                  value: saveToCloud,
-                  onChanged: (value) => setState(() => saveToCloud = value),
-                  activeColor: Colors.blueAccent,
-                ),
-              ),
-            ]),
-
-            const SizedBox(height: 30),
-
-            // PREFERENCES
-            _section(theme, "PREFERENCES", [
-              _tile(
-                theme,
-                Icons.notifications_none,
-                "Notifications",
-                "Alerts for document processing",
-                trailing: Switch(
-                  value: notifications,
-                  onChanged: (value) => setState(() => notifications = value),
-                  activeColor: Colors.blueAccent,
-                ),
-              ),
-
-              // THEME TILE
-              BlocBuilder<ThemeCubit, ThemeState>(
-                builder: (context, state) {
-                  return _tile(
-                    theme,
-                    Icons.dark_mode_outlined,
-                    "App Theme",
-                    state.isDark ? "Current: Dark Mode" : "Current: Light Mode",
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextButton(
-                          onPressed: () => context.read<ThemeCubit>().toggleTheme(),
-                          child: Text("Change",
-                              style: TextStyle(
-                                  color: Colors.blueAccent)),
-                        ),
-                        const SizedBox(width: 5),
-                        Icon(Icons.chevron_right,
-                            color: Colors.blueAccent),
-                      ],
+              // HEADER
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      size: 18,
                     ),
-                  );
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                            (route) => false,
+                      );
+                    },
+                  ),
+                  const Spacer(),
+                  Text("Settings",
+                      style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600)),
+                  const Spacer(),
+                  const SizedBox(width: 18),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+              Divider(
+                  color: theme.colorScheme.onSurface.withOpacity(0.06),
+                  height: 1),
+              const SizedBox(height: 20),
+
+              // SCANNING SETTINGS
+              BlocBuilder<SettingsCubit, SettingsState>(
+                builder: (context, state) {
+                  return _section(theme, "SCANNING SETTINGS", [
+                    _tile(
+                      theme,
+                      Icons.radar,
+                      "Auto Scan",
+                      "Automatically scan device every 6 hours",
+                      trailing: Switch(
+                        value: state.autoScan,
+                        onChanged: (value) =>
+                            context.read<SettingsCubit>().toggleAutoScan(value),
+                        activeColor: Colors.blueAccent,
+                      ),
+                    ),
+                    _tile(
+                      theme,
+                      Icons.cloud_upload_outlined,
+                      "Save to Cloud",
+                      "Sync scans immediately",
+                      trailing: Switch(
+                        value: false,
+                        onChanged: null, // Coming soon
+                        activeColor: Colors.blueAccent,
+                      ),
+                    ),
+                  ]);
                 },
-
               ),
-            ]
-            ),
 
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // SUPPORT & INFO
+              // PREFERENCES
+              BlocBuilder<SettingsCubit, SettingsState>(
+                builder: (context, settingsState) {
+                  return _section(theme, "PREFERENCES", [
+                    _tile(
+                      theme,
+                      Icons.notifications_none,
+                      "Notifications",
+                      "Alerts for security threats",
+                      trailing: Switch(
+                        value: settingsState.notifications,
+                        onChanged: (value) => context
+                            .read<SettingsCubit>()
+                            .toggleNotifications(value),
+                        activeColor: Colors.blueAccent,
+                      ),
+                    ),
 
-
-            const SizedBox(height: 30),
-
-
-            const SizedBox(height: 20),
-
-            Center(
-              child: Text(
-                "VERSION 2.4.1 (BUILD 890)",
-                style: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.24),
-                    fontSize: 11,
-                    letterSpacing: 1),
+                    // THEME TILE
+                    BlocBuilder<ThemeCubit, ThemeState>(
+                      builder: (context, themeState) {
+                        return _tile(
+                          theme,
+                          Icons.dark_mode_outlined,
+                          "App Theme",
+                          themeState.isDark
+                              ? "Current: Dark Mode"
+                              : "Current: Light Mode",
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextButton(
+                                onPressed: () =>
+                                    context.read<ThemeCubit>().toggleTheme(),
+                                child: const Text("Change",
+                                    style:
+                                    TextStyle(color: Colors.blueAccent)),
+                              ),
+                              const SizedBox(width: 5),
+                              const Icon(Icons.chevron_right,
+                                  color: Colors.blueAccent),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ]);
+                },
               ),
-            ),
 
-          ],
+              const SizedBox(height: 30),
+              const SizedBox(height: 20),
+
+              Center(
+                child: Text(
+                  "VERSION 2.4.1 (BUILD 890)",
+                  style: TextStyle(
+                      color: theme.colorScheme.onSurface.withOpacity(0.24),
+                      fontSize: 11,
+                      letterSpacing: 1),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-
     );
   }
 
@@ -184,8 +182,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _tile(ThemeData theme, IconData icon, String title,
-      String? subtitle, {Widget? trailing}) {
+  Widget _tile(ThemeData theme, IconData icon, String title, String? subtitle,
+      {Widget? trailing}) {
     return ListTile(
       leading: Container(
         width: 40,

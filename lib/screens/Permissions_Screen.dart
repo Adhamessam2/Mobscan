@@ -11,14 +11,16 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-    bool queryInstalledApps = false;
-    bool storageAccess = false;
+
 
     @override
     Widget build(BuildContext context) {
+        final state = context.watch<AppsCubit>().state;
         final theme = Theme.of(context);
 
-        return Scaffold(
+        return  PopScope(
+            canPop: false,
+      child:Scaffold(
             backgroundColor: theme.scaffoldBackgroundColor,
             body: SafeArea(
                 child: SingleChildScrollView(
@@ -143,14 +145,12 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                             Icons.apps,
                                             "Query Installed Apps",
                                             "Identify malicious packages and known vulnerabilities.",
-                                            queryInstalledApps,
-                                                (value) async{
-                                                setState(() => queryInstalledApps = value);
+                                            state.queryInstalledApps,
+                                                (value) async {
+                                                context.read<AppsCubit>().setQueryInstalledApps(value);
+                                                if (value) await context.read<AppsCubit>().getApps();
+                                            },
 
-                                            if(value){
-                                            await context.read<AppsCubit>().getApps();
-                                            }
-                                          },
                                         ),
                                         Divider(
                                             color: theme.colorScheme.onSurface.withOpacity(0.06),
@@ -160,8 +160,10 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                             Icons.folder_outlined,
                                             "Storage Access",
                                             "Analyze APK files for deep-threat detection signatures.",
-                                            storageAccess,
-                                                (value) => setState(() => storageAccess = value),
+                                            state.storageAccess,
+                                                (value) {
+                                                context.read<AppsCubit>().setStorageAccess(value);
+                                            },
                                         ),
                                     ],
                                 ),
@@ -174,7 +176,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 width: double.infinity,
                                 height: 55,
                                 child: ElevatedButton(
-                                    onPressed: queryInstalledApps && storageAccess
+                                    onPressed: state.queryInstalledApps && state.storageAccess
                                         ? () {
                                         Navigator.pushReplacement(
                                             context,
@@ -209,6 +211,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                     ),
                 ),
             ),
+         )
         );
     }
 
@@ -218,7 +221,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
         String title,
         String subtitle,
         bool value,
-        ValueChanged<bool> onChanged,
+        void Function(bool) onChanged,
         ) {
         return ListTile(
             leading: Container(

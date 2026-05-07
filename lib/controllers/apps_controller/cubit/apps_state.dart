@@ -36,6 +36,8 @@ class AppsState {
     List<AppModel>? allApps,
     String? searchQuery,
     int? selectedCategoryIndex,
+    bool? queryInstalledApps,
+    bool? storageAccess,
   }) {
     return AppsState._(
       status: status ?? this.status,
@@ -45,6 +47,7 @@ class AppsState {
       selectedCategoryIndex ?? this.selectedCategoryIndex,
       queryInstalledApps: queryInstalledApps ?? this.queryInstalledApps,
       storageAccess: storageAccess ?? this.storageAccess,
+
     );
   }
 
