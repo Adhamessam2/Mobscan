@@ -2,13 +2,16 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:mobscan/models/app_model.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'apps_state.dart';
 
 class AppsCubit extends Cubit<AppsState> {
   final AppScannerService _scannerService;
 
-  AppsCubit(this._scannerService) : super(AppsState.initial());
+  AppsCubit(this._scannerService) : super(AppsState.initial()){
+    _loadPermissions();
+  }
 
   int categoryIndex = 0;
 
@@ -80,5 +83,33 @@ class AppsCubit extends Cubit<AppsState> {
 
     // Emit the search query and the results
     emit(state.copyWith(searchQuery: query, allApps: results));
+  }
+  Future<void> _loadPermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final query = prefs.getBool('queryInstalledApps');
+    final storage = prefs.getBool('storageAccess');
+
+    emit(state.copyWith(
+      queryInstalledApps: query ?? false,
+      storageAccess: storage ?? false,
+    ));
+  }
+  void setQueryInstalledApps(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('queryInstalledApps', value);
+
+    emit(state.copyWith(queryInstalledApps: value));
+
+    if (value) {
+      await getApps();
+    }
+  }
+
+  void setStorageAccess(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('storageAccess', value);
+
+    emit(state.copyWith(storageAccess: value));
   }
 }
