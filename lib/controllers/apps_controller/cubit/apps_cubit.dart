@@ -9,7 +9,7 @@ part 'apps_state.dart';
 class AppsCubit extends Cubit<AppsState> {
   final AppScannerService _scannerService;
 
-  AppsCubit(this._scannerService) : super(AppsState.initial()){
+  AppsCubit(this._scannerService) : super(AppsState.initial()) {
     _loadPermissions();
   }
 
@@ -17,6 +17,16 @@ class AppsCubit extends Cubit<AppsState> {
 
   // 2. Keep a private master list to preserve data during searches
   List<AppModel> masterAppList = [];
+
+  String riskystatus(AppModel app) {
+    if (app.riskLevel! > 80) {
+      return "High Risk";
+    } else if (app.riskLevel! > 50) {
+      return "Medium Risk";
+    } else {
+      return "Low Risk";
+    }
+  }
 
   List<AppModel> get safeApps =>
       state.allApps.where((app) => (app.riskLevel ?? 0) <= 50).toList();
@@ -84,17 +94,21 @@ class AppsCubit extends Cubit<AppsState> {
     // Emit the search query and the results
     emit(state.copyWith(searchQuery: query, allApps: results));
   }
+
   Future<void> _loadPermissions() async {
     final prefs = await SharedPreferences.getInstance();
 
     final query = prefs.getBool('queryInstalledApps');
     final storage = prefs.getBool('storageAccess');
 
-    emit(state.copyWith(
-      queryInstalledApps: query ?? false,
-      storageAccess: storage ?? false,
-    ));
+    emit(
+      state.copyWith(
+        queryInstalledApps: query ?? false,
+        storageAccess: storage ?? false,
+      ),
+    );
   }
+
   void setQueryInstalledApps(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('queryInstalledApps', value);
@@ -111,5 +125,17 @@ class AppsCubit extends Cubit<AppsState> {
     await prefs.setBool('storageAccess', value);
 
     emit(state.copyWith(storageAccess: value));
+  }
+
+  // Remove app from the list locally
+  void removeAppFromList(String packageName) {
+    masterAppList.removeWhere((app) => app.package == packageName);
+
+    emit(
+      state.copyWith(
+        status: AppStatus.success,
+        allApps: List.from(masterAppList),
+      ),
+    );
   }
 }

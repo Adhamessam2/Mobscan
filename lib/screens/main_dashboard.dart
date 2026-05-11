@@ -61,12 +61,13 @@ class _MainDashboardState extends State<MainDashboard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
 
       appBar: AppBar(
+        forceMaterialTransparency: true,
         toolbarHeight: 70,
-        backgroundColor: Theme.of(context).colorScheme.primary,
         leadingWidth: 140,
         leading: Container(
           padding: const EdgeInsets.only(left: 16),
@@ -75,11 +76,11 @@ class _MainDashboardState extends State<MainDashboard> {
             children: [
               SvgPicture.asset('assets/icons/icon.svg', width: 20, height: 25),
               const SizedBox(width: 10),
-              const Text(
+              Text(
                 'MobScan',
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.white,
+                  color: colors.onSurface,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -93,10 +94,7 @@ class _MainDashboardState extends State<MainDashboard> {
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
               child: const Icon(
                 Icons.notifications_none_outlined,
                 size: 30,
@@ -110,10 +108,7 @@ class _MainDashboardState extends State<MainDashboard> {
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color:Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
               child: const Icon(Icons.menu, size: 30, color: Color(0xFF007BFF)),
             ),
           ),
@@ -130,7 +125,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 Text(
                   'Hello, ${widget.username}',
                   style: TextStyle(
-                    color:Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w700,
                     fontSize: 25,
                   ),
@@ -258,7 +253,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 ),
                 children: [
                   reportContainer(
-                     context,
+                    context,
                     'assets/icons/secret.svg',
                     const Color.fromRGBO(255, 77, 77, 0.1),
                     'DETECTED',
@@ -267,7 +262,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'Unsafe environment',
                   ),
                   reportContainer(
-                     context,
+                    context,
                     'assets/icons/debug.svg',
                     const Color(0xFF111827),
                     'SECURE',
@@ -276,7 +271,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'No active session',
                   ),
                   reportContainer(
-                     context,
+                    context,
                     'assets/icons/emulator.svg',
                     const Color(0xFF111827),
                     'SECURE',
@@ -285,7 +280,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'Physical hardware',
                   ),
                   reportContainer(
-                     context,
+                    context,
                     'assets/icons/hook.svg',
                     const Color.fromRGBO(255, 77, 77, 0.1),
                     'WARNING',
@@ -294,7 +289,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'Framework detected',
                   ),
                   reportContainer(
-                     context,
+                    context,
                     'assets/icons/antivirus.svg',
                     const Color(0xFF111827),
                     'CLEANED',
@@ -324,7 +319,7 @@ Widget textColor(String text) {
 }
 
 Widget reportContainer(
-BuildContext context,
+  BuildContext context,
   String svg,
   Color svgColor,
   String behaviour,
@@ -332,11 +327,12 @@ BuildContext context,
   String title,
   String subtitle,
 ) {
+  final colors = Theme.of(context).colorScheme;
   return Container(
     padding: const EdgeInsets.all(12),
     margin: const EdgeInsets.all(6),
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.primary,
+      color: colors.tertiary,
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
         color: const Color.fromRGBO(255, 255, 255, 0.05),
@@ -377,8 +373,8 @@ BuildContext context,
           children: [
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.onSurface,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobscan/core/appcolors.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
@@ -19,10 +20,7 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Workmanager().initialize(
-    callbackDispatcher,
-    isInDebugMode: true,
-  );
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   runApp(const Mobscan());
 }
 
@@ -49,6 +47,7 @@ class Mobscan extends StatelessWidget {
               colorScheme: const ColorScheme.light(
                 primary: Color(0xFF007BFF),
                 surface: Color(0xFFFFFFFF),
+                tertiary: Appcolors.cardBackground,
                 onSurface: Colors.black,
               ),
             ),
@@ -60,6 +59,7 @@ class Mobscan extends StatelessWidget {
               colorScheme: const ColorScheme.dark(
                 primary: Color(0xFF0F1923),
                 surface: Color(0xFF0F1923),
+                tertiary: Color(0xFF0F1923),
                 onSurface: Colors.white,
               ),
             ),

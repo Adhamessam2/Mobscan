@@ -1,161 +1,70 @@
+import 'dart:io';
+
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
+import 'package:mobscan/models/app_model.dart';
 
 class ThreatDetailScreen extends StatefulWidget {
-  const ThreatDetailScreen({super.key});
+  final AppModel app;
+  final String riskystatus;
+  const ThreatDetailScreen({
+    super.key,
+    required this.app,
+    required this.riskystatus,
+  });
   @override
   State<ThreatDetailScreen> createState() => _ThreatDetailScreenState();
 }
 
 class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
-  int? openCardIndex;
-  void _snack(String msg, Color c) =>
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(msg),
-          backgroundColor: c,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+  void _openAppManagement() {
+    if (Platform.isAndroid) {
+      final intent = AndroidIntent(
+        action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+        data: 'package:${widget.app.package}', // Targets the specific app
       );
-  void _revokeDialog() => showModalBottomSheet(
-    context: context,
-    backgroundColor: const Color(0xFF1A1A1A),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (_) => Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Revoke Permissions',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const PermissionItem(icon: Icons.message, label: 'SMS Access'),
-          const PermissionItem(icon: Icons.folder, label: 'Storage Access'),
-          const PermissionItem(icon: Icons.layers, label: 'Overlay Permission'),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _snack('✅ Permissions revoked!', Colors.green);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4A90FF),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Apply Changes',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-  void _uninstallDialog() => showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      backgroundColor: const Color(0xFF1A1A1A),
-      title: const Text(
-        'Uninstall App?',
-        style: TextStyle(color: Colors.white),
-      ),
-      content: const Text(
-        'Are you sure you want to uninstall SuperFlashlight?',
-        style: TextStyle(color: Colors.grey),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            _snack('🗑️ App uninstalled!', Colors.red);
-          },
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          child: const Text('Remove', style: TextStyle(color: Colors.white)),
-        ),
-      ],
-    ),
-  );
-  void _fixAll() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const AlertDialog(
-        backgroundColor: Color(0xFF1A1A1A),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: Color(0xFF4A90FF)),
-            SizedBox(height: 16),
-            Text('Fixing issues...', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-      ),
-    );
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      Navigator.pop(context);
-      _snack('✅ All issues fixed!', Colors.green);
-    });
+      intent.launch();
+    }
+  }
+
+  // 2. Logic to trigger the system Uninstall prompt
+  void _openUninstall() {
+    if (Platform.isAndroid) {
+      final intent = AndroidIntent(
+        action: 'android.intent.action.DELETE',
+        data: 'package:${widget.app.package}',
+      );
+      intent.launch();
+      context.read<AppsCubit>().removeAppFromList(widget.app.package!);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Threat Detail',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        forceMaterialTransparency: true,
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back_ios, color:Theme.of(context).colorScheme.onSurface,),
-                    onPressed: () => _snack('Back', Colors.grey),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Threat Detail',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface,),
-                    onPressed: () => _snack('Link copied!', Colors.blue),
-                  ),
-                ],
-              ),
-            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -166,19 +75,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                       clipBehavior: Clip.none,
                       alignment: Alignment.center,
                       children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2A2A2A),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: const Icon(
-                            Icons.flashlight_on,
-                            color: Colors.white,
-                            size: 44,
-                          ),
-                        ),
+                        Image.memory(widget.app.icon!),
                         Positioned(
                           bottom: -12,
                           child: Container(
@@ -190,8 +87,8 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                               color: Colors.red,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Text(
-                              'HIGH RISK',
+                            child: Text(
+                              widget.riskystatus,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
@@ -204,21 +101,21 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'SuperFlashlight',
+                      widget.app.name!,
                       style: TextStyle(
-                        color:Theme.of(context).colorScheme.onSurface,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'com.utility.bright.flash • v2.4.1',
+                    Text(
+                      widget.app.package!,
                       style: TextStyle(color: Colors.blueGrey, fontSize: 13),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      '85%',
+                    Text(
+                      "${widget.app.riskLevel.toString()}%",
                       style: TextStyle(
                         color: Colors.red,
                         fontSize: 56,
@@ -251,45 +148,15 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    RiskCard(
-                      icon: Icons.message,
-                      color: Colors.red,
-                      title: 'SMS Permissions',
-                      subtitle: 'Can read private messages and capture OTPs.',
-                      detail: 'Allows interception of bank OTPs and 2FA codes.',
-                      isOpen: openCardIndex == 0,
-                      onTap: () => setState(
-                        () => openCardIndex = openCardIndex == 0 ? null : 0,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    RiskCard(
-                      icon: Icons.bug_report,
-                      color: Colors.orange,
-                      title: 'Debuggable Flag',
-                      subtitle:
-                          'App is in debug mode, vulnerable to hijacking.',
-                      detail: 'Attackers can control the app at runtime.',
-                      isOpen: openCardIndex == 1,
-                      onTap: () => setState(
-                        () => openCardIndex = openCardIndex == 1 ? null : 1,
-                      ),
-                    ),
                     const SizedBox(height: 10),
                     RiskCard(
                       icon: Icons.layers,
                       color: Colors.red,
-                      title: 'Overlay Detected',
-                      subtitle: 'Can draw over other apps for click-jacking.',
+                      title: widget.app.riskReason!,
                       detail:
                           'Creates invisible overlays to trick you into tapping malicious buttons.',
-                      isOpen: openCardIndex == 2,
-                      onTap: () => setState(
-                        () => openCardIndex = openCardIndex == 2 ? null : 2,
-                      ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 50),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -312,7 +179,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                             subtitle:
                                 'Limit SMS and Storage access immediately.',
                             label: 'MANAGE →',
-                            onTap: _revokeDialog,
+                            onTap: _openAppManagement,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -324,38 +191,12 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                             subtitle:
                                 'The safest route to protect device data.',
                             label: 'REMOVE NOW',
-                            onTap: _uninstallDialog,
+                            onTap: _openUninstall,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
                   ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton.icon(
-                  onPressed: _fixAll,
-                  icon: const Icon(Icons.auto_fix_high, color: Colors.white),
-                  label: const Text(
-                    'Fix Automatically',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4A90FF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
                 ),
               ),
             ),
@@ -370,14 +211,14 @@ class _ActionCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String title, subtitle, label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   const _ActionCard({
     required this.icon,
     required this.color,
     required this.title,
     required this.subtitle,
     required this.label,
-    required this.onTap,
+    this.onTap,
   });
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -424,30 +265,22 @@ class _ActionCard extends StatelessWidget {
 class RiskCard extends StatelessWidget {
   final IconData icon;
   final Color color;
-  final String title, subtitle, detail;
-  final bool isOpen;
-  final VoidCallback onTap;
+  final String title, detail;
+
   const RiskCard({
     super.key,
     required this.icon,
     required this.color,
     required this.title,
-    required this.subtitle,
     required this.detail,
-    required this.isOpen,
-    required this.onTap,
   });
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
     child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color:Theme.of(context).colorScheme.primary,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isOpen ? color.withValues(alpha: 0.5) : Colors.transparent,
-        ),
       ),
       child: Column(
         children: [
@@ -475,38 +308,11 @@ class RiskCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 3),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
                   ],
                 ),
               ),
-              Icon(
-                isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: Colors.grey,
-              ),
             ],
           ),
-          if (isOpen) ...[
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                detail,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                  height: 1.5,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     ),

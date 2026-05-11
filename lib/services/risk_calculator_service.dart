@@ -124,7 +124,7 @@ class RiskCalculatorService {
     if (score > 100) score = 100;
 
     String reason = suspiciousFinds.isEmpty
-        ? 'Permissions align with the app category.'
+        ? 'There is no threat in this app'
         : suspiciousFinds.toSet().map((e) => '- $e').join('\n');
 
     return {'score': score, 'reason': reason};
