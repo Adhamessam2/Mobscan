@@ -43,6 +43,7 @@ dependencies:
   installed_apps: ^2.1.1
   permission_handler: ^11.0.0
   workmanager: ^0.6.0
+  android_intent_plus: ^6.0.0
 
 dev_dependencies:
   flutter_test:
