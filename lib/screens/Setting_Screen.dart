@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/settings_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/screens/home_page.dart';
+import 'package:mobscan/services/export_service.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -72,13 +74,18 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     _tile(
                       theme,
-                      Icons.cloud_upload_outlined,
-                      "Save to Cloud",
-                      "Sync scans immediately",
-                      trailing: Switch(
-                        value: false,
-                        onChanged: null, // Coming soon
-                        activeColor: Colors.blueAccent,
+                      Icons.download_outlined,
+                      "Export Scan Report",
+                      "Save results as PDF to your device",
+                      trailing: IconButton(
+                        icon: Icon(Icons.arrow_forward_ios, color: Colors.blueAccent, size: 16),
+                        onPressed: () async {
+                          final cubit = context.read<AppsCubit>();
+                          if (cubit.masterAppList.isEmpty) {
+                            await cubit.getApps();
+                          }
+                          ExportService.exportReport(cubit.masterAppList);
+                        },
                       ),
                     ),
                   ]);
