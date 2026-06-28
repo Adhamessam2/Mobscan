@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/core/appcolors.dart';
 import 'package:mobscan/models/app_model.dart';
+import 'package:mobscan/screens/safe_screen.dart';
 import 'package:mobscan/screens/threat_detailes.dart';
 
 class Apps extends StatefulWidget {
@@ -22,6 +23,12 @@ class _AppsState extends State<Apps> {
 
   CarouselSliderController carouselController = CarouselSliderController();
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +68,14 @@ class _AppsState extends State<Apps> {
                   hintText: "Search installed applications...",
                   hintStyle: TextStyle(color: Appcolors.text),
                   prefixIcon: Icon(Icons.search),
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            searchController.clear();
+                          },
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -98,9 +113,9 @@ class _AppsState extends State<Apps> {
             SizedBox(height: 20),
 
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: Colors.grey.shade700,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -134,21 +149,9 @@ class _AppsState extends State<Apps> {
                     return CarouselSlider(
                       carouselController: carouselController,
                       items: [
-                        _appsList(
-                          state.allApps,
-                          cubit.safeApps,
-                          cubit.riskyApps,
-                        ),
-                        _appsList(
-                          state.allApps,
-                          cubit.safeApps,
-                          cubit.riskyApps,
-                        ),
-                        _appsList(
-                          state.allApps,
-                          cubit.safeApps,
-                          cubit.riskyApps,
-                        ),
+                        _appsList(state.allApps, "Apps"),
+                        _appsList(cubit.safeApps, "Safe Apps"),
+                        _appsList(cubit.riskyApps, "Risky Apps"),
                       ],
                       options: CarouselOptions(
                         height: double.infinity,
@@ -192,10 +195,9 @@ class _AppsState extends State<Apps> {
               );
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              margin: EdgeInsets.symmetric(horizontal: 4),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? Appcolors.cardColor : Colors.transparent,
+                color: isSelected ? Colors.blue : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -209,19 +211,33 @@ class _AppsState extends State<Apps> {
     );
   }
 
-  Widget _appCard(AppModel app) {
+  Widget _appCard(AppModel app, BuildContext context) {
+    final String riskystatus = context.read<AppsCubit>().riskystatus(app);
+    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: colors.tertiary,
         borderRadius: BorderRadius.circular(10),
       ),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ThreatDetailScreen()),
-          );
+          if (app.riskLevel == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SafeAppDetailScreen(app: app),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ThreatDetailScreen(app: app, riskystatus: riskystatus),
+              ),
+            );
+          }
         },
         child: ListTile(
           leading: app.icon != null
@@ -234,7 +250,7 @@ class _AppsState extends State<Apps> {
           title: Text(
             app.name ?? "",
             style: TextStyle(
-              color: Colors.white,
+              color: colors.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -264,7 +280,7 @@ class _AppsState extends State<Apps> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  app.riskLevel! > 50 ? "High Risk" : "Safe", // Keep it short!
+                  riskystatus,
                   style: TextStyle(
                     color: _riskColors(app.riskLevel ?? 0),
                     fontSize: 12,
@@ -279,28 +295,18 @@ class _AppsState extends State<Apps> {
     );
   }
 
-  Widget _appsList(
-    List<AppModel> apps,
-    List<AppModel> safeApps,
-    List<AppModel> riskyApps,
-  ) {
+  Widget _appsList(List<AppModel> apps, String label) {
     if (apps.isEmpty) {
-      return Center(
-        child: Text("No Apps Found", style: TextStyle(color: Appcolors.text)),
-      );
-    }
-    if (riskyApps.isEmpty) {
-      return Center(
-        child: Text(
-          "No Risky Apps Found",
-          style: TextStyle(color: Appcolors.text),
-        ),
-      );
-    }
-    if (safeApps.isEmpty) {
+      final isSearching = context
+          .read<AppsCubit>()
+          .state
+          .searchQuery
+          .isNotEmpty;
       return Center(
         child: Text(
-          "No Safe Apps Found",
+          isSearching
+              ? "No $label found matching your search"
+              : "No $label found",
           style: TextStyle(color: Appcolors.text),
         ),
       );
@@ -310,13 +316,13 @@ class _AppsState extends State<Apps> {
       itemCount: apps.length,
       itemBuilder: (context, index) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 6.0),
-        child: _appCard(apps[index]),
+        child: _appCard(apps[index], context),
       ),
     );
   }
 
   Color _riskColors(int riskLevel) {
-    if (riskLevel <= 25) return Colors.blue;
+    if (riskLevel <= 25) return Colors.green;
     if (riskLevel <= 50) return Colors.orange;
     if (riskLevel <= 75) return Colors.yellow;
     return Colors.red;

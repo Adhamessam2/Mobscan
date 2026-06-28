@@ -56,10 +56,13 @@ class _MainDashboardState extends State<MainDashboard> {
   }
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Color(0xff0A0E14),
 
       appBar: AppBar(
+        forceMaterialTransparency: true,
         toolbarHeight: 70,
         backgroundColor: Color(0xff0A0E14),
         leadingWidth: 140,
@@ -78,7 +81,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 'MobScan',
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.white,
+                  color: colors.onSurface,
                   fontWeight: FontWeight.w900,
                 ),
               ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobscan/screens/home_page.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PermissionsScreen extends StatefulWidget {
     const PermissionsScreen({super.key});
@@ -8,14 +11,16 @@ class PermissionsScreen extends StatefulWidget {
 }
 
 class _PermissionsScreenState extends State<PermissionsScreen> {
-    bool queryInstalledApps = false;
-    bool storageAccess = false;
+
 
     @override
     Widget build(BuildContext context) {
+        final state = context.watch<AppsCubit>().state;
         final theme = Theme.of(context);
 
-        return Scaffold(
+        return  PopScope(
+            canPop: false,
+      child:Scaffold(
             backgroundColor: theme.scaffoldBackgroundColor,
             body: SafeArea(
                 child: SingleChildScrollView(
@@ -25,9 +30,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                         children: [
 
                             // HEADER
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
+
                                     Row(
                                         children: [
                                             Container(
@@ -48,21 +51,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                                     fontWeight: FontWeight.w600)),
                                         ],
                                     ),
-                                    Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                            color: theme.cardColor,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                                color: theme.colorScheme.onSurface.withOpacity(0.1)),
-                                        ),
-                                        child: Icon(Icons.help_outline,
-                                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                                            size: 18),
-                                    ),
-                                ],
-                            ),
+
 
                             const SizedBox(height: 30),
 
@@ -126,15 +115,6 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                                 height: 1.5),
                                         ),
                                         const SizedBox(height: 12),
-                                        GestureDetector(
-                                            onTap: () {},
-                                            child: const Text("VIEW PRIVACY POLICY",
-                                                style: TextStyle(
-                                                    color: Colors.blueAccent,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 0.8)),
-                                        ),
                                     ],
                                 ),
                             ),
@@ -165,8 +145,12 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                             Icons.apps,
                                             "Query Installed Apps",
                                             "Identify malicious packages and known vulnerabilities.",
-                                            queryInstalledApps,
-                                                (value) => setState(() => queryInstalledApps = value),
+                                            state.queryInstalledApps,
+                                                (value) async {
+                                                context.read<AppsCubit>().setQueryInstalledApps(value);
+                                                if (value) await context.read<AppsCubit>().getApps();
+                                            },
+
                                         ),
                                         Divider(
                                             color: theme.colorScheme.onSurface.withOpacity(0.06),
@@ -176,8 +160,10 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                             Icons.folder_outlined,
                                             "Storage Access",
                                             "Analyze APK files for deep-threat detection signatures.",
-                                            storageAccess,
-                                                (value) => setState(() => storageAccess = value),
+                                            state.storageAccess,
+                                                (value) {
+                                                context.read<AppsCubit>().setStorageAccess(value);
+                                            },
                                         ),
                                     ],
                                 ),
@@ -190,9 +176,17 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 width: double.infinity,
                                 height: 55,
                                 child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: state.queryInstalledApps && state.storageAccess
+                                        ? () {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => HomePage()),
+                                        );
+                                    }
+                                        : null,
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.blueAccent,
+                                        disabledBackgroundColor: Colors.blueAccent.withOpacity(0.3),
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(14)),
                                     ),
@@ -217,6 +211,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                     ),
                 ),
             ),
+         )
         );
     }
 
@@ -226,7 +221,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
         String title,
         String subtitle,
         bool value,
-        ValueChanged<bool> onChanged,
+        void Function(bool) onChanged,
         ) {
         return ListTile(
             leading: Container(
