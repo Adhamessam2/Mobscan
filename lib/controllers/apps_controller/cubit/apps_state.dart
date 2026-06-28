@@ -1,3 +1,4 @@
+
 part of 'apps_cubit.dart';
 
 enum AppStatus { intial, loading, success, error, failed }
@@ -30,12 +31,19 @@ class AppsState {
       storageAccess: false,
     );
   }
+  factory AppsState.loading(){
+    return const AppsState._(status: AppStatus.loading,
+        allApps: [],
+        selectedCategoryIndex: 0,
+    );
+  }
 
   AppsState copyWith({
     AppStatus? status,
     List<AppModel>? allApps,
     String? searchQuery,
     int? selectedCategoryIndex,
+    List<ScanResult>? scanResults,
     bool? queryInstalledApps,
     bool? storageAccess,
   }) {

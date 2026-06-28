@@ -1,12 +1,17 @@
+import 'dart:ui';
 class ScanResult {
-  final String title;
-  final String severity;
-  final String description;
-  final String solution;
+  final String svg;
+  final Color svgColor;
+  final String behaviour;
+  final Color behavColor;
+  final String explain;
+  final String smallExplain;
   ScanResult({
-     required this.title,
-     required this.severity,
-     required this.description,
-    required this.solution
-  });
+    required this.svg,
+    required this.svgColor,
+    required this.behaviour,
+    required this.behavColor,
+    required this.explain,
+    required this.smallExplain});
+
 }

@@ -6,7 +6,24 @@ import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/screens/splash_Screen.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'controllers/security_controller/security_cubit.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
+// ...
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: HydratedStorageDirectory(
+        (await getApplicationDocumentsDirectory()).path,
+  ),
+  );
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
@@ -31,9 +48,16 @@ class Mobscan extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => AppsCubit(AppScannerService())),
-        BlocProvider(create: (context) => ThemeCubit()),
+        BlocProvider(
+          create: (context) => AppsCubit(AppScannerService()),
+        ),
+        BlocProvider(
+          create: (context) => SecurityCubit(),
+        ),
       ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
           return MaterialApp(
