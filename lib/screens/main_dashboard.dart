@@ -8,10 +8,12 @@ import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 import 'package:mobscan/models/Scan_result.dart';
 import 'package:mobscan/screens/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controllers/security_controller/security_cubit.dart';
 
 class MainDashboard extends StatefulWidget {
-  final String username;
+  String username;
+  String _result = '';
 
 
   MainDashboard({super.key, this.username = 'User'});
@@ -23,6 +25,8 @@ class MainDashboard extends StatefulWidget {
 class _MainDashboardState extends State<MainDashboard> {
   int count = 0;
   int _selectedIndex = 0;
+  Future<SharedPreferences> laststate = SharedPreferences.getInstance();
+  final prefs = SharedPreferences.getInstance();
   String formatTime(DateTime time) {
     final now = DateTime.now();
     final diff = now.difference(time);
@@ -44,16 +48,23 @@ class _MainDashboardState extends State<MainDashboard> {
     );
   }
   @override
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<SecurityCubit>().getLastScan();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff0A0E14),
+      backgroundColor: Color(0xff0A0E14),
 
       appBar: AppBar(
         toolbarHeight: 70,
-        backgroundColor: const Color(0xff0A0E14),
+        backgroundColor: Color(0xff0A0E14),
         leadingWidth: 140,
         leading: Container(
-          padding: const EdgeInsets.only(left: 16),
+          padding: EdgeInsets.only(left: 16),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -79,13 +90,13 @@ class _MainDashboardState extends State<MainDashboard> {
           GestureDetector(
             onTap: () {},
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF111827),
+                color: Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.notifications_none_outlined,
                 size: 30,
                 color: Color(0xFF007BFF),
@@ -97,13 +108,17 @@ class _MainDashboardState extends State<MainDashboard> {
             onTap: () {
             },
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: const Color(0xFF111827),
+                color: Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.menu, size: 30, color: Color(0xFF007BFF)),
+              child: Icon(
+                Icons.menu,
+                size: 30,
+                color: Color(0xFF007BFF),
+              ),
             ),
           ),
         ],
@@ -111,41 +126,69 @@ class _MainDashboardState extends State<MainDashboard> {
 
       body: Center(
         child: Column(
+          spacing: 2,
           children: [
-            const SizedBox(height: 5),
-
+            SizedBox(height: 5),
             Column(
               children: [
                 Text(
-                  'Hello, ${widget.username}',
-                  style: const TextStyle(
+                  'Hello,${widget.username}',
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                     fontSize: 25,
                   ),
                 ),
+                BlocBuilder<SecurityCubit,SecurityState>(builder: (context,state) {
+                  if (state is SecurityLoading) {
+                    return SizedBox();
+                  }
+                  if (state is SecuritySuccess && state.threats==0) {
+                    return Container(
+                      height: 42,
+                      width: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('assets/icons/plot_blue.svg'),
+                          SizedBox(width: 5),
+                          Text_color('Device Status: ',Colors.blue!),
+                          Text_color('Safe',Colors.blue!),
+                        ],
+                      ),
+                    );
+                    }
+                  if(state is SecuritySuccess && state.threats !=0) {
+                    return Container(
+                      height: 42,
+                      width: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('assets/icons/plot.svg'),
+                          SizedBox(width: 5),
+                          Text_color('Device Status: ', Colors.redAccent!),
+                          Text_color('At Risk', Colors.redAccent!),
+                        ],
+                      ),
+                    );
+                  }
+                  return SizedBox();
 
-                Container(
-                  height: 42,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    color: const Color.fromRGBO(255, 77, 77, 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset('assets/icons/plot.svg'),
-                      SizedBox(width: 5),
-                      Text_color('Device Status: '),
-                      Text_color('At Risk'),
-                    ],
-                  ),
-                ),
+                }
+                  )
               ],
             ),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
 
         Stack(
           alignment: Alignment.center,
@@ -155,22 +198,35 @@ class _MainDashboardState extends State<MainDashboard> {
               width: 170,
               child:  BlocBuilder<SecurityCubit, SecurityState>(
                 builder: (context, state) {
+                  if(state is SecuirtyInitial){
+                    return Container(
+                        child:Stack(
+                          children: [
+                           Center(child: Text('Start',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 30),), )
+                            ,SvgPicture.asset('assets/icons/vector.svg'),
+                          ],
+                        ));
+                  }
                   if (state is SecurityLoading) {
                     return CircularProgressIndicator(
                       color: Color(0xFF007BFF),
                       strokeWidth: 15,
                     );
                   }
-
-                  if (state is SecuritySuccess) {
+                  if (state is SecuritySuccess && state.threats!=0) {
                     return CircularProgressIndicator(
-
                       value: state.score / 100,
-                      color: Color(0xFF007BFF),
-                      strokeWidth: 8,
+                      color: Color(0xffFF4D4D),
+                      strokeWidth: 15,
                     );
                   }
-
+                  if (state is SecuritySuccess) {
+                    return CircularProgressIndicator(
+                      value: state.score / 100,
+                      color: Color(0xFF007BFF),
+                      strokeWidth: 15,
+                    );
+                  }
                   return SizedBox();
                 },
               )
@@ -179,9 +235,21 @@ class _MainDashboardState extends State<MainDashboard> {
                   children: [
                     BlocBuilder<SecurityCubit, SecurityState>(
                       builder: (context, state) {
+                        if (state is SecuirtyInitial) {
+                        }
+                        if (state is SecuritySuccess && state.threats !=0) {
+                        return Text(
+                          '${state.score}%',
+                          style: TextStyle(
+                            color: Color(0xffFF4D4D),
+                            fontSize: 50,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        );
+                      }
                         if (state is SecuritySuccess) {
-                          return Text(
-                            '${state.score}',
+                           return Text(
+                            '${state.score}%',
                             style: TextStyle(
                               color: Color(0xFF007BFF),
                               fontSize: 50,
@@ -189,28 +257,31 @@ class _MainDashboardState extends State<MainDashboard> {
                             ),
                           );
                         }
+
                         if(state is SecurityLoading){
-                          return
-                            Text('${state.progress}%',
-                              style: TextStyle(
-                                color: Color(0xFF007BFF),
-                                fontSize: 50,
-                                fontWeight: FontWeight.w900,
-                              ),);
+                          return Column(
+                            children: [ Text(
+                            'SECURITY SCORE',
+                            style: TextStyle(
+                              color: Color.fromRGBO(148, 163, 184, 1),
+                            ),
+                          ),
+                        Text('${state.progress}%',
+                        style: TextStyle(
+                        color: Color(0xFF007BFF),
+                        fontSize: 50,
+                        fontWeight: FontWeight.w900,
+                        ))],);
                         }
                         return Text('');
                       },
-                    ),
-                    Text(
-                      'SECURITY SCORE',
-                      style: TextStyle(color: Color.fromRGBO(148, 163, 184, 1)),
                     ),
                   ],
                 ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             GestureDetector(
               onTap: () {
@@ -220,7 +291,7 @@ class _MainDashboardState extends State<MainDashboard> {
                 width: 358,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF007BFF),
+                  color: Color(0xFF007BFF),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
@@ -244,28 +315,37 @@ class _MainDashboardState extends State<MainDashboard> {
             ),
             BlocBuilder<SecurityCubit, SecurityState>(
               builder: (context, state) {
+                if (state is SecuirtyInitial) {
+                  return Text(
+                    state.lastScan != null
+                        ? 'Last scan: ${formatTime(state.lastScan!)}'
+                        : '',
+                  );
+                }
                 if (state is SecuritySuccess) {
                   return Text(
                     'Last scan: ${formatTime(state.lastScan!)} • ${state?.threats??0} threats found',
                     style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
                   );
                 }
-                return Text(
-                  'scanning...',
-                  style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
-                );
+                if(state is SecurityLoading) {
+                 return Text(
+                    'scanning...',
+                    style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+                  );
+                }
+                return SizedBox();
               },
             ),
             Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                    'SECURITY MODULES',
+                    'SECURITY MODELS',
                     style: TextStyle(
                       color: Color.fromRGBO(100, 116, 139, 1),
-                      fontSize: 14,
-                      letterSpacing: 1.2,
+                      fontSize: 19,
                     ),
                   ),
                 ),
@@ -309,16 +389,15 @@ class _MainDashboardState extends State<MainDashboard> {
    }
 
 }
-
-Widget textColor(String text) {
+Widget Text_color(String example,Color status){
   return Text(
-    text,
-    style: const TextStyle(
-      color: Colors.redAccent,
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-    ),
-  );
+'$example',
+style:TextStyle(
+color: status,
+  fontSize: 18,
+  fontWeight: FontWeight.bold,
+),
+);
 }
 Widget report_container(String svg,Color svgcolor,String behaviour,Color behavcolor,String explain,String smallexplain){
   return Container(
@@ -327,63 +406,48 @@ Widget report_container(String svg,Color svgcolor,String behaviour,Color behavco
     height: 30,
     width: 30,
     decoration: BoxDecoration(
-      color: const Color.fromRGBO(22, 27, 34, 1),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.05),
+      color: Color.fromRGBO(22, 27, 34, 1),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.05),
         width: 1,
         style: BorderStyle.solid,
       ),
     ),
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width:30,
+              height: 50,
               decoration: BoxDecoration(
-                color: svgColor,
-                borderRadius: BorderRadius.circular(8),
+                color: svgcolor,
+                borderRadius: BorderRadius.circular(5),
               ),
-              child: Center(child: SvgPicture.asset(svg, height: 20)),
-            ),
-            Text(
-              behaviour,
-              style: TextStyle(
-                color: behavColor,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+              child: Center(
+                child: SvgPicture.asset(
+                  '$svg',
+                  height: 28,
+                ),
               ),
             ),
+            Text('$behaviour',style: TextStyle(color: behavcolor),),
+
           ],
         ),
-        const SizedBox(height: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+        SizedBox(height: 10,),
+        Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('$explain',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600),),
+                Text('$smallexplain',style: TextStyle(color:Color.fromRGBO(100, 116, 139, 1) ),overflow:TextOverflow.fade ,)
+                ],
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                color: Color.fromRGBO(100, 116, 139, 1),
-                fontSize: 11,
-              ),
-            ),
-          ],
-        ),
+            ] ),
       ],
     ),
   );

@@ -5,6 +5,8 @@ import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'package:mobscan/models/app_model.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
 
+import '../../../models/Scan_result.dart';
+
 part 'apps_state.dart';
 
 class AppsCubit extends Cubit<AppsState> {
