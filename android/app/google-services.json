@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:399237273894:android:f4d788abe7a5cf9a2389e7",
+        "mobilesdk_app_id": "1:793206894125:android:db1ac0a3b1c29c3df112a4",
         "android_client_info": {
           "package_name": "com.example.mobscan"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAXoJeHsB6KQKa6p2HGfrvMAkeGFezHa3c"
+          "current_key": "AIzaSyBiUwYGXfOLEwM9lIYwYC7vVLrVhvdFUzQ"
         }
       ],
       "services": {

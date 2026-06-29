@@ -1,8 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'package:mobscan/models/app_model.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../models/Scan_result.dart';
 
 part 'apps_state.dart';
 
@@ -61,6 +65,7 @@ class AppsCubit extends Cubit<AppsState> {
       emit(state.copyWith(status: AppStatus.error, allApps: []));
     }
   }
+
 
   void changeCategory(int index) {
     categoryIndex = index;
