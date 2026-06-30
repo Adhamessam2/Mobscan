@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/settings_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
+import 'package:mobscan/screens/auth/login_screen.dart';
 import 'package:mobscan/screens/home_page.dart';
+import 'package:mobscan/services/auth_service.dart';
 import 'package:mobscan/services/export_service.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
+
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -69,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
                         value: state.autoScan,
                         onChanged: (value) =>
                             context.read<SettingsCubit>().toggleAutoScan(value),
-                        activeColor: Colors.blueAccent,
+                        activeThumbColor: Colors.blueAccent,
                       ),
                     ),
                     _tile(
@@ -142,6 +145,67 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ]);
                 },
+              ),
+              const SizedBox(height: 30),
+
+              _section(theme, "ACCOUNT", [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () async {
+                      await AuthService().signOut();
+
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                              (route) => false,
+                        );
+                      }
+                    },
+                    child: Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.redAccent.withOpacity(.4),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.logout, color: Colors.redAccent),
+                            SizedBox(width: 8),
+                            Text(
+                              "Logout",
+                              style: TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+
+              const SizedBox(height: 20),
+
+              Center(
+                child: Text(
+                  "VERSION 2.4.1 (BUILD 890)",
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface.withOpacity(0.24),
+                    fontSize: 11,
+                    letterSpacing: 1,
+                  ),
+                ),
               ),
 
               const SizedBox(height: 30),
