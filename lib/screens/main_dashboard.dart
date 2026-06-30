@@ -9,7 +9,6 @@ import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 import 'package:mobscan/models/Scan_result.dart';
 import 'package:mobscan/screens/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../controllers/security_controller/security_cubit.dart';
 
 class MainDashboard extends StatefulWidget {
   String username;
@@ -402,28 +401,34 @@ color: status,
 ),
 );
 }
-Widget report_container(String svg,Color svgcolor,String behaviour,Color behavcolor,String explain,String smallexplain){
+Widget report_container(
+    String svg,
+    Color svgcolor,
+    String behaviour,
+    Color behavcolor,
+    String explain,
+    String smallexplain,
+    ) {
   return Container(
-    padding: EdgeInsets.all(12),
-
-    height: 30,
-    width: 30,
+    padding: const EdgeInsets.all(12),
+    width: double.infinity, // ياخد عرض الشاشة
     decoration: BoxDecoration(
-      color: Color.fromRGBO(22, 27, 34, 1),
+      color: const Color.fromRGBO(22, 27, 34, 1),
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.05),
+      border: Border.all(
+        color: const Color.fromRGBO(255, 255, 255, 0.05),
         width: 1,
-        style: BorderStyle.solid,
       ),
     ),
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width:30,
+              width: 50,
               height: 50,
               decoration: BoxDecoration(
                 color: svgcolor,
@@ -431,26 +436,43 @@ Widget report_container(String svg,Color svgcolor,String behaviour,Color behavco
               ),
               child: Center(
                 child: SvgPicture.asset(
-                  '$svg',
+                  svg,
                   height: 28,
                 ),
               ),
             ),
-            Text('$behaviour',style: TextStyle(color: behavcolor),),
 
+            Flexible(
+              child: Text(
+                behaviour,
+                style: TextStyle(color: behavcolor),
+                textAlign: TextAlign.end,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
-        SizedBox(height: 10,),
-        Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('$explain',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600),),
-                Text('$smallexplain',style: TextStyle(color:Color.fromRGBO(100, 116, 139, 1) ),overflow:TextOverflow.fade ,)
-                ],
-              ),
-            ] ),
+
+        const SizedBox(height: 10),
+
+        Text(
+          explain,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        const SizedBox(height: 4),
+
+        Text(
+          smallexplain,
+          style: const TextStyle(
+            color: Color.fromRGBO(100, 116, 139, 1),
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     ),
   );

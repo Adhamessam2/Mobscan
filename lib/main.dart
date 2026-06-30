@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobscan/core/appcolors.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
-import 'package:mobscan/screens/splash_Screen.dart';
-import 'package:mobscan/services/app_scanner_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'controllers/security_controller/security_cubit.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:workmanager/workmanager.dart';
 
-// ...
+import 'package:mobscan/core/appcolors.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
+import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
+import 'package:mobscan/controllers/security_controller/security_cubit.dart';
+import 'package:mobscan/firebase_options.dart';
+import 'package:mobscan/screens/splash_Screen.dart';
+import 'package:mobscan/screens/auth/auth_gate.dart';
+import 'package:mobscan/services/app_scanner_service.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: HydratedStorageDirectory(
-        (await getApplicationDocumentsDirectory()).path,
-  ),
-  );
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
@@ -35,10 +25,27 @@ void callbackDispatcher() {
   });
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-  runApp(const Mobscan());
+
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: HydratedStorageDirectory(
+        (await getApplicationDocumentsDirectory()).path,
+      ),
+    );
+
+    await Workmanager().initialize(
+      callbackDispatcher,
+      isInDebugMode: true,
+    );
+
+    runApp(const Mobscan());
+  }
 }
 
 class Mobscan extends StatelessWidget {
@@ -48,23 +55,22 @@ class Mobscan extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => AppsCubit(AppScannerService()),
+        BlocProvider<ThemeCubit>(
+          create: (_) => ThemeCubit(),
         ),
-        BlocProvider(
-          create: (context) => SecurityCubit(),
+        BlocProvider<AppsCubit>(
+          create: (_) => AppsCubit(AppScannerService()),
+        ),
+        BlocProvider<SecurityCubit>(
+          create: (_) => SecurityCubit(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: HomePage(),
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             themeMode: state.themeMode,
 
-            // LIGHT THEME
             theme: ThemeData(
               scaffoldBackgroundColor: const Color(0xFFF0F4F8),
               cardColor: const Color(0xFFFFFFFF),
@@ -76,7 +82,6 @@ class Mobscan extends StatelessWidget {
               ),
             ),
 
-            // DARK THEME
             darkTheme: ThemeData(
               scaffoldBackgroundColor: const Color(0xFF071826),
               cardColor: const Color(0xFF0F1923),
@@ -88,7 +93,7 @@ class Mobscan extends StatelessWidget {
               ),
             ),
 
-            home: SplashScreen(),
+            home:const AuthGate(),
           );
         },
       ),

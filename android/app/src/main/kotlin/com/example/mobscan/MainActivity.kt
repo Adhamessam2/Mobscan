@@ -1,8 +1,8 @@
 package com.example.mobscan
+
 import android.content.pm.PackageManager
 import java.io.File
 import java.security.MessageDigest
-import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -14,6 +14,8 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // VirusTotal Channel
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "mobscan.scanner/virustotal"
@@ -73,6 +75,20 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        // Permissions Channel
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            PERMISSION_CHANNEL
+        ).setMethodCallHandler { call, result ->
+
+            PermissionHandler().handle(
+                call,
+                result,
+                packageManager
+            )
+        }
+
+        // Security Channel
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             SECURITY_CHANNEL
@@ -89,6 +105,7 @@ class MainActivity : FlutterActivity() {
             }
         }
     }
+
     private fun calculateSHA256(filePath: String): String {
 
         val digest = MessageDigest.getInstance("SHA-256")
