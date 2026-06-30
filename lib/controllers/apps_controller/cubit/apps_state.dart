@@ -34,7 +34,7 @@ class AppsState {
   factory AppsState.loading(){
     return const AppsState._(status: AppStatus.loading,
         allApps: [],
-        selectedCategoryIndex: 0,
+        selectedCategoryIndex: 0, searchQuery: '', queryInstalledApps: true, storageAccess: true,
     );
   }
 

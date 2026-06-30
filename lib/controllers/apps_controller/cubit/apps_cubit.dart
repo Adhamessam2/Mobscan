@@ -40,28 +40,32 @@ class AppsCubit extends Cubit<AppsState> {
 
   // 3. Make this async to handle the real scanning process
   Future<void> getApps() async {
+    print("getApps called");
+
     emit(state.copyWith(status: AppStatus.loading));
 
     try {
-      // Trigger the native scan and risk calculation
       final fetchedApps = await _scannerService.scanDevice();
+
+      print("Apps count: ${fetchedApps.length}");
 
       if (fetchedApps.isEmpty) {
         emit(state.copyWith(status: AppStatus.failed, allApps: []));
         return;
       }
 
-      // Save to our master list for searching later
       masterAppList = fetchedApps;
 
-      // Re-apply search filter if there's an active query
       if (state.searchQuery.isNotEmpty) {
         search(state.searchQuery);
       } else {
-        // Emit success with the real data
-        emit(state.copyWith(status: AppStatus.success, allApps: masterAppList));
+        emit(state.copyWith(
+          status: AppStatus.success,
+          allApps: masterAppList,
+        ));
       }
-    } catch (_) {
+    } catch (e) {
+      print("Error: $e");
       emit(state.copyWith(status: AppStatus.error, allApps: []));
     }
   }
