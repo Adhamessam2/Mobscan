@@ -1,7 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'package:mobscan/models/app_model.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,7 +68,6 @@ class AppsCubit extends Cubit<AppsState> {
     }
   }
 
-
   void changeCategory(int index) {
     categoryIndex = index;
   }
@@ -95,9 +92,9 @@ class AppsCubit extends Cubit<AppsState> {
       final package = app.package?.toLowerCase() ?? '';
       final category = app.category?.toLowerCase() ?? '';
 
-      return name.contains(cleanQuery) ||
-          package.contains(cleanQuery) ||
-          category.contains(cleanQuery);
+      return name.contains(cleanQuery)||
+          package.contains(cleanQuery)||
+      category.contains(cleanQuery);
     }).toList();
 
     // Emit the search query and the results

@@ -11,6 +11,8 @@ import 'package:mobscan/controllers/security_controller/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/Scan_result.dart';
+import '../../services/notification_service.dart';
+import '../../services/security_service.dart';
 
 part 'security_state.dart';
 
@@ -19,48 +21,65 @@ class SecurityCubit extends Cubit<SecurityState> {
   List<ScanResult> results = [];
   List<ScanResult>result_virus=[];
   int threats = 0;
-  int? score;
+  int? score = 100;
+  final SecurityService _service = SecurityService();
   static const platform = MethodChannel('mobscan/security');
-  Future<bool> checkFrida() async {
-    return await platform.invokeMethod('checkFrida');
+
+  Future<bool> isNotificationEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('notifications') ?? true;
   }
-  Future<void>checkblacklistedApps()async{
-    final snapshot =await FirebaseFirestore.instance.collection('blacklist').get();
-    final apps =
-    await VirusTotalService()
-        .getInstalledAppsNames();
+  Future<void> sendNotificationIfEnabled({
+    required String title,
+    required String body,
+  }) async {
+    if (await isNotificationEnabled()) {
+      await NotificationService.showRiskNotification(
+        title: title,
+        body: body,
+      );
+    }
+  }
+  Future<void> checkblacklistedApps() async {
+    final snapshot =
+    await FirebaseFirestore.instance.collection('blacklist').get();
+
+    final apps = await VirusTotalService().getInstalledAppsNames();
+
     Set<String> blacklist = {};
+
     for (var doc in snapshot.docs) {
       blacklist.add(doc.id);
     }
-      for (var app in apps) {
-        final packageName = app['packageName'] as String;
-        if (blacklist.contains(packageName)) {
-          print("${app.appName} is dangerous");
-          threats++;
-          results.add(
-            ScanResult(
-              svg: 'assets/icons/secret.svg',
-              svgColor: Colors.red.withOpacity(0.2),
-              behaviour: "High",
-              behavColor: Colors.red,
-              explain:app.packageName,
-              smallExplain: 'Exist dangerous app',)
-          );
-      }else{
-          threats++;
-          results.add(
-              ScanResult(
-                svg: 'assets/icons/secret.svg',
-                svgColor: Colors.blue.withOpacity(0.2),
-                behaviour: "Secure",
-                behavColor: Colors.blue,
-                explain:app.packageName,
-                smallExplain: 'No dangerous app',)
-          );
-        }
+
+    for (var app in apps) {
+      final packageName = app['packageName'] as String;
+
+      if (blacklist.contains(packageName)) {
+        threats++;
+        results.add(
+          ScanResult(
+            svg: 'assets/icons/secret.svg',
+            svgColor: Colors.red.withOpacity(0.2),
+            behaviour: "High",
+            behavColor: Colors.red,
+            explain: packageName,
+            smallExplain: "Dangerous app detected",
+          ),
+        );
+      } else {
+        results.add(
+          ScanResult(
+            svg: 'assets/icons/secret_blue.svg',
+            svgColor: Colors.blue.withOpacity(0.2),
+            behaviour: "Secure",
+            behavColor: Colors.blue,
+            explain: packageName,
+            smallExplain: "No dangerous app",
+          ),
+        );
+      }
     }
-    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
   Future<void> checkVirusTotal(
       String sha256Hash,
@@ -115,10 +134,10 @@ class SecurityCubit extends Cubit<SecurityState> {
   Future<void> checkRootJailbreak() async {
     emit(SecurityLoading());
 
-    final isNotTrust = await JailbreakRootDetection.instance.isNotTrust;
-    final isRealDevice = await JailbreakRootDetection.instance.isRealDevice;
-    final isDebug = await JailbreakRootDetection.instance.isDebugged;
-    final isDevmode = await JailbreakRootDetection.instance.isDevMode;
+    final isNotTrust = await _service.isRooted();
+    final isRealDevice = await _service.isRealDevice();
+    final isDebug = await _service.isDebugMode();
+    final isDevmode = await _service.isDeveloperMode();
 
     if (isNotTrust) {
       threats++;
@@ -174,7 +193,7 @@ class SecurityCubit extends Cubit<SecurityState> {
       );
     }
 
-    if (isDevmode) {
+    if (isDevmode){
       threats++;
       results.add(
         ScanResult(
@@ -187,7 +206,8 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    if (isDebug) {
+    if (isDebug)
+    {
       threats++;
       results.add(
         ScanResult(
@@ -217,9 +237,9 @@ class SecurityCubit extends Cubit<SecurityState> {
   Future<void> checkFridaExist() async {
     emit(SecurityLoading());
 
-    bool isFrida = await checkFrida();
-    print("Frida result = $isFrida");
+    bool isFrida = await _service.checkFrida();
     if (isFrida) {
+
       threats++;
       results.add(
         ScanResult(
@@ -271,9 +291,9 @@ class SecurityCubit extends Cubit<SecurityState> {
     results = [];
     threats = 0;
     for (int i = 0; i <= 100; i++) {
+      await Future.delayed(Duration(milliseconds: 50));
       emit(SecurityLoading(i));
 
-      await Future.delayed(Duration(milliseconds: 50));
     }
       await checkFridaExist();
       await checkRootJailbreak();
