@@ -47,139 +47,138 @@ class _AppsState extends State<Apps> {
 
       body: SafeArea(
         child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextFormField(
-                controller: searchController,
-                onChanged: (value) {
-                  context.read<AppsCubit>().search(value);
-                },
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 18,
+            children: [
+        Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: TextFormField(
+          controller: searchController,
+          onChanged: (value) {
+            context.read<AppsCubit>().search(value);
+          },
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 18,
+          ),
+          decoration: InputDecoration(
+            fillColor: Theme.of(context).colorScheme.surface,
+            filled: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            hintText: "Search installed applications...",
+            hintStyle: TextStyle(color: Appcolors.text),
+            prefixIcon: Icon(Icons.search),
+            suffixIcon: searchController.text.isNotEmpty
+                ? IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                searchController.clear();
+              },
+            )
+                : null,
+          ),
+        ),
+      ),
+
+      SizedBox(height: 20),
+
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: BlocBuilder<AppsCubit, AppsState>(
+          builder: (context, state) {
+            return Row(
+              children: [
+                Text(
+                  "Total apps :${state.allApps.length}",
+                  style: TextStyle(color: Appcolors.text),
                 ),
-                decoration: InputDecoration(
-                  fillColor: Theme.of(context).colorScheme.surface,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  hintText: "Search installed applications...",
-                  hintStyle: TextStyle(color: Appcolors.text),
-                  prefixIcon: Icon(Icons.search),
-                  suffixIcon: searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            searchController.clear();
+                SizedBox(width: 20),
+                Text(
+                  "flagged :${cubit.riskyApps.length}",
+                  style: TextStyle(color: Appcolors.text),
+                ),
+                Spacer(),
+                Icon(Icons.circle, color: Colors.blue, size: 12),
+                SizedBox(width: 5),
+                Text(
+                  "scanning...",
+                  style: TextStyle(color: Appcolors.text),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+
+      SizedBox(height: 20),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade700,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _categoryCard("all", 0, carouselController),
+                    _categoryCard("safe", 1, carouselController),
+                    _categoryCard("Risky", 2, carouselController),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 10),
+              Divider(color: Appcolors.searchBarColor),
+              SizedBox(height: 10),
+
+              Expanded(
+                child: BlocBuilder<AppsCubit, AppsState>(
+                  builder: (BuildContext context, state) {
+                    final cubit = context.read<AppsCubit>();
+
+                    if (state.status == AppStatus.loading) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    if (state.status == AppStatus.error) {
+                      return Center(child: Text("Error"));
+                    }
+
+                    if (state.status == AppStatus.success) {
+                      return CarouselSlider(
+                        carouselController: carouselController,
+                        items: [
+                          _appsList(state.allApps, "Apps"),
+                          _appsList(cubit.safeApps, "Safe Apps"),
+                          _appsList(cubit.riskyApps, "Risky Apps"),
+                        ],
+                        options: CarouselOptions(
+                          height: double.infinity,
+                          enlargeCenterPage: true,
+                          viewportFraction: 0.9,
+                          scrollDirection: Axis.horizontal,
+                          onPageChanged: (index, reason) {
+                            context.read<AppsCubit>().navigateToNextPage(index);
                           },
-                        )
-                      : null,
+                        ),
+                      );
+                    }
+
+                    return SizedBox.shrink();
+                  },
                 ),
               ),
-            ),
-
-            SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BlocBuilder<AppsCubit, AppsState>(
-                builder: (context, state) {
-                  return Row(
-                    children: [
-                      Text(
-                        "Total apps :${state.allApps.length}",
-                        style: TextStyle(color: Appcolors.text),
-                      ),
-                      SizedBox(width: 20),
-                      Text(
-                        "flagged :${cubit.riskyApps.length}",
-                        style: TextStyle(color: Appcolors.text),
-                      ),
-                      Spacer(),
-                      Icon(Icons.circle, color: Colors.blue, size: 12),
-                      SizedBox(width: 5),
-                      Text(
-                        "scanning...",
-                        style: TextStyle(color: Appcolors.text),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-
-            SizedBox(height: 20),
-
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade700,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _categoryCard("all", 0, carouselController),
-                  _categoryCard("safe", 1, carouselController),
-                  _categoryCard("Risky", 2, carouselController),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 10),
-            Divider(color: Appcolors.searchBarColor),
-            SizedBox(height: 10),
-
-            Expanded(
-              child: BlocBuilder<AppsCubit, AppsState>(
-                builder: (BuildContext context, state) {
-                  final cubit = context.read<AppsCubit>();
-
-                  if (state.status == AppStatus.loading) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  if (state.status == AppStatus.error) {
-                    return Center(child: Text("Error"));
-                  }
-
-                  if (state.status == AppStatus.success) {
-                    return CarouselSlider(
-                      carouselController: carouselController,
-                      items: [
-                        _appsList(state.allApps, "Apps"),
-                        _appsList(cubit.safeApps, "Safe Apps"),
-                        _appsList(cubit.riskyApps, "Risky Apps"),
-                      ],
-                      options: CarouselOptions(
-                        height: double.infinity,
-                        enlargeCenterPage: true,
-                        viewportFraction: 0.9,
-                        scrollDirection: Axis.horizontal,
-                        onPageChanged: (index, reason) {
-                          context.read<AppsCubit>().navigateToNextPage(index);
-                        },
-                      ),
-                    );
-                  }
-
-                  return SizedBox.shrink();
-                },
-              ),
-            ),
-          ],
+            ],
         ),
       ),
     );
   }
 
   Widget _categoryCard(
-    String text,
-    int index,
-    CarouselSliderController carouselController,
-  ) {
+      String text,
+      int index,
+      CarouselSliderController carouselController,
+      ) {
     return Expanded(
       child: BlocBuilder<AppsCubit, AppsState>(
         builder: (context, state) {
@@ -210,7 +209,6 @@ class _AppsState extends State<Apps> {
       ),
     );
   }
-
   Widget _appCard(AppModel app, BuildContext context) {
     final String riskystatus = context.read<AppsCubit>().riskystatus(app);
     final colors = Theme.of(context).colorScheme;
@@ -242,10 +240,10 @@ class _AppsState extends State<Apps> {
         child: ListTile(
           leading: app.icon != null
               ? Image.memory(
-                  app.icon!,
-                  fit: BoxFit.cover,
-                  gaplessPlayback: true,
-                )
+            app.icon!,
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+          )
               : Icon(Icons.apps, color: Colors.white, size: 40),
           title: Text(
             app.name ?? "",

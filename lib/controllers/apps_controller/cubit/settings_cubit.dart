@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
-
+import 'package:workmanager/workmanager.dart';
 part 'settings_state.dart';
 
 const String autoScanTaskName = 'mobscan_auto_scan';
@@ -29,10 +28,17 @@ class SettingsCubit extends Cubit<SettingsState> {
 
     if (value) {
       // Register periodic background scan every 6 hours
+      final notificationStatus = await Permission.notification.request();
+
+      if (!notificationStatus.isGranted) {
+        emit(state.copyWith(autoScan: false));
+        return;
+      }
+
       await Workmanager().registerPeriodicTask(
         autoScanTaskId,
         autoScanTaskName,
-        frequency: const Duration(hours: 6),
+        frequency: const Duration(minutes: 15),
         existingWorkPolicy: ExistingWorkPolicy.replace,
         constraints: Constraints(
           networkType: NetworkType.not_required,
@@ -52,7 +58,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (value) {
       final status = await Permission.notification.request();
       if (!status.isGranted) {
-        // Permission denied, don't turn on
+        emit(state.copyWith(notifications: false));
         return;
       }
     }
