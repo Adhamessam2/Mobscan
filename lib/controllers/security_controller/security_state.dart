@@ -14,9 +14,9 @@ class SecurityLoading extends SecurityState {
 }
 class SecuritySuccess extends SecurityState {
   final List<ScanResult> result;
-  final int score;
+  int score = 100;
   final DateTime? lastScan;
-  int? threats = 0;
+  int threats = 0;
    SecuritySuccess(this.result,this.score,this.lastScan,this.threats);
 }
 class SecurityError extends SecurityState {

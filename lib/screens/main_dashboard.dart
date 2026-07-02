@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 import 'package:mobscan/models/Scan_result.dart';
 import 'package:mobscan/screens/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../controllers/security_controller/security_cubit.dart';
 
 class MainDashboard extends StatefulWidget {
   String username;
@@ -22,6 +24,7 @@ class MainDashboard extends StatefulWidget {
 }
 
 class _MainDashboardState extends State<MainDashboard> {
+  final username = FirebaseAuth.instance.currentUser?.displayName;
   int count = 0;
   int _selectedIndex = 0;
   Future<SharedPreferences> laststate = SharedPreferences.getInstance();
@@ -53,6 +56,9 @@ class _MainDashboardState extends State<MainDashboard> {
     super.initState();
     context.read<SecurityCubit>().getLastScan();
   }
+  late final size = MediaQuery.of(context).size;
+  late final width = size.width;
+  late final height = size.height;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -60,71 +66,99 @@ class _MainDashboardState extends State<MainDashboard> {
     return Scaffold(
       backgroundColor: Color(0xff0A0E14),
 
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        toolbarHeight: 70,
-        backgroundColor: Color(0xff0A0E14),
-        leadingWidth: 140,
-        leading: Container(
-          padding: EdgeInsets.only(left: 16),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset(
-                "assets/icons/icon.svg",
-                width: 20,
-                height: 25,
-              ),
-              SizedBox(width: 10),
-              Text(
-                'MobScan',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: colors.onSurface,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
-          ),
-        ),
+        appBar: AppBar(
+          forceMaterialTransparency: true,
+          toolbarHeight: height * .085,
+          backgroundColor: const Color(0xff0A0E14),
+          leadingWidth: width * .38,
 
-        actions: [
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          leading: Padding(
+            padding: EdgeInsets.only(left: width * .04),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  "assets/icons/icon.svg",
+                  width: width * .055,
+                  height: width * .055,
+                ),
+                SizedBox(width: width * .025),
+                Text(
+                  'MobScan',
+                  style: TextStyle(
+                    fontSize: width * .05,
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          actions: [
+
+            Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: width * .015,
+                vertical: height * .012,
+              ),
+
+              padding: EdgeInsets.all(width * .02),
+
               decoration: BoxDecoration(
-                color: Color(0xFF111827),
+                color: const Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
               ),
+
               child: Icon(
                 Icons.notifications_none_outlined,
-                size: 30,
-                color: Color(0xFF007BFF),
+                size: width * .07,
+                color: const Color(0xFF007BFF),
               ),
             ),
-          ),
+            Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: width * .02,
+                vertical: height * .012,
+              ),
 
-          GestureDetector(
-            onTap: () {
-            },
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: EdgeInsets.all(width * .02),
+
               decoration: BoxDecoration(
-                color: Color(0xFF111827),
+                color: const Color(0xFF111827),
                 borderRadius: BorderRadius.circular(8),
               ),
+
               child: Icon(
                 Icons.menu,
-                size: 30,
-                color: Color(0xFF007BFF),
+                size: width * .07,
+                color: const Color(0xFF007BFF),
               ),
             ),
-          ),
-        ],
-      ),
+            Builder(
+              builder: (context) => InkWell(
+                onTap: () => Scaffold.of(context).openDrawer(),
+                child: Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: width * .02,
+                    vertical: height * .012,
+                  ),
+                  padding: EdgeInsets.all(width * .02),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111827),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.menu,
+                    size: width * .07,
+                    color: const Color(0xFF007BFF),
+                  ),
+                ),
+              ),
+            ),
+
+            SizedBox(width: width * .02),
+          ],
+        ),
 
       body: Center(
         child: Column(
@@ -134,11 +168,11 @@ class _MainDashboardState extends State<MainDashboard> {
             Column(
               children: [
                 Text(
-                  'Hello,${widget.username}',
+                  'Hello,${username?.split(' ').first??'User'}',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
-                    fontSize: 25,
+                    fontSize: width * .065,
                   ),
                 ),
                 BlocBuilder<SecurityCubit,SecurityState>(builder: (context,state) {
@@ -147,8 +181,8 @@ class _MainDashboardState extends State<MainDashboard> {
                   }
                   if (state is SecuritySuccess && state.threats==0) {
                     return Container(
-                      height: 42,
-                      width: 250,
+                      width: width * .64,
+                      height: height * .05,
                       decoration: BoxDecoration(
                         color: Colors.blue.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -166,8 +200,8 @@ class _MainDashboardState extends State<MainDashboard> {
                     }
                   if(state is SecuritySuccess && state.threats !=0) {
                     return Container(
-                      height: 42,
-                      width: 250,
+                      width: width * .64,
+                      height: height * .05,
                       decoration: BoxDecoration(
                         color: Colors.red.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -190,14 +224,14 @@ class _MainDashboardState extends State<MainDashboard> {
               ],
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: height * .015),
 
         Stack(
           alignment: Alignment.center,
           children: [
             SizedBox(
-              height: 165,
-              width: 170,
+                height: width * .45,
+                width: width * .45,
               child:  BlocBuilder<SecurityCubit, SecurityState>(
                 builder: (context, state) {
                   if(state is SecuirtyInitial){
@@ -212,19 +246,19 @@ class _MainDashboardState extends State<MainDashboard> {
                   if (state is SecurityLoading) {
                     return CircularProgressIndicator(
                       color: Color(0xFF007BFF),
-                      strokeWidth: 15,
+                      strokeWidth: 10,
                     );
                   }
                   if (state is SecuritySuccess && state.threats!=0) {
                     return CircularProgressIndicator(
                       value: state.score / 100,
                       color: Color(0xffFF4D4D),
-                      strokeWidth: 15,
+                      strokeWidth: 10,
                     );
                   }
                   if (state is SecuritySuccess) {
                     return CircularProgressIndicator(
-                      value: state.score / 100,
+                      value: state.score/ 100,
                       color: Color(0xFF007BFF),
                       strokeWidth: 15,
                     );
@@ -238,6 +272,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     BlocBuilder<SecurityCubit, SecurityState>(
                       builder: (context, state) {
                         if (state is SecuirtyInitial) {
+
                         }
                         if (state is SecuritySuccess && state.threats !=0) {
                         return Text(
@@ -259,7 +294,6 @@ class _MainDashboardState extends State<MainDashboard> {
                             ),
                           );
                         }
-
                         if(state is SecurityLoading){
                           return Column(
                             children: [ Text(
@@ -290,30 +324,37 @@ class _MainDashboardState extends State<MainDashboard> {
                 context.read<SecurityCubit>().fullScan();
                 },
               child: Container(
-                width: 358,
-                height: 56,
+                width: width * .92,
+                height: height * .068,
+
                 decoration: BoxDecoration(
-                  color: Color(0xFF007BFF),
+                  color: const Color(0xFF007BFF),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset('assets/icons/scan.svg'),
-                      SizedBox(width: 10),
-                      Text(
-                        'Scan Now',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 18,
-                        ),
+
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    SvgPicture.asset(
+                      'assets/icons/scan.svg',
+                      width: width * .06,
+                      height: width * .06,
+                    ),
+
+                    SizedBox(width: width * .03),
+
+                    Text(
+                      "Scan Now",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: width * .045,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+              )
             ),
             BlocBuilder<SecurityCubit, SecurityState>(
               builder: (context, state) {
@@ -347,7 +388,7 @@ class _MainDashboardState extends State<MainDashboard> {
                     'SECURITY MODELS',
                     style: TextStyle(
                       color: Color.fromRGBO(100, 116, 139, 1),
-                      fontSize: 19,
+                      fontSize: width * .032,
                     ),
                   ),
                 ),
@@ -361,13 +402,18 @@ class _MainDashboardState extends State<MainDashboard> {
                     }
                     if(state is SecuritySuccess) {
                       return GridView.builder(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: width * .03,
+                            vertical: height * .01,
+                          ),
                       scrollDirection: Axis.vertical,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        mainAxisSpacing: 10,
                         crossAxisSpacing: 10,
-                        childAspectRatio: 1.5,
+                        mainAxisSpacing: 10,
+                        mainAxisExtent: 180,
                       ),
+
                       itemCount: res.results.length,
                       itemBuilder: (context, index) {
                    final item = res.results[index];
@@ -410,14 +456,13 @@ Widget report_container(
     String smallexplain,
     ) {
   return Container(
-    padding: const EdgeInsets.all(12),
-    width: double.infinity, // ياخد عرض الشاشة
+    padding: EdgeInsets.all(12),
+    width: double.infinity,
     decoration: BoxDecoration(
       color: const Color.fromRGBO(22, 27, 34, 1),
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
-        color: const Color.fromRGBO(255, 255, 255, 0.05),
-        width: 1,
+        color: const Color.fromRGBO(255,255,255,.05),
       ),
     ),
     child: Column(
@@ -457,21 +502,25 @@ Widget report_container(
 
         Text(
           explain,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
-          ),
+            fontSize: 14,
+              )
         ),
 
         const SizedBox(height: 4),
 
         Text(
           smallexplain,
-          style: const TextStyle(
-            color: Color.fromRGBO(100, 116, 139, 1),
-          ),
-          maxLines: 2,
+          maxLines: 3,
           overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Color.fromRGBO(100,116,139,1),
+            fontSize: 12,
+        ),
         ),
       ],
     ),

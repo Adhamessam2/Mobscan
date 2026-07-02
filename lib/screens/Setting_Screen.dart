@@ -7,7 +7,7 @@ import 'package:mobscan/screens/home_page.dart';
 import 'package:mobscan/services/auth_service.dart';
 import 'package:mobscan/services/export_service.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-
+import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -87,8 +87,15 @@ class SettingsScreen extends StatelessWidget {
                           if (cubit.masterAppList.isEmpty) {
                             await cubit.getApps();
                           }
-                          ExportService.exportReport(cubit.masterAppList);
-                        },
+                          final securityCubit = context.read<SecurityCubit>();
+                  await ExportService.exportReport(
+                  results: securityCubit.results,
+                  apps: securityCubit.scannedApps,
+                  score: securityCubit.calculateScore(),
+                  threats: securityCubit.threats,
+                  );
+
+                  },
                       ),
                     ),
                   ]);

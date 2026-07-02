@@ -19,9 +19,9 @@ part 'security_state.dart';
 class SecurityCubit extends Cubit<SecurityState> {
   SecurityCubit() : super(SecuirtyInitial());
   List<ScanResult> results = [];
-  List<ScanResult>result_virus=[];
+  List<Map<String, dynamic>> scannedApps = [];
   int threats = 0;
-  int? score = 100;
+  int score = 100;
   final SecurityService _service = SecurityService();
   static const platform = MethodChannel('mobscan/security');
 
@@ -41,45 +41,68 @@ class SecurityCubit extends Cubit<SecurityState> {
     }
   }
   Future<void> checkblacklistedApps() async {
+    print("checkblacklistedApps called");
     final snapshot =
     await FirebaseFirestore.instance.collection('blacklist').get();
 
     final apps = await VirusTotalService().getInstalledAppsNames();
 
-    Set<String> blacklist = {};
+    scannedApps.clear();
 
-    for (var doc in snapshot.docs) {
-      blacklist.add(doc.id);
-    }
+    final Set<String> blacklist = snapshot.docs
+        .map((doc) => doc.id)
+        .toSet();
 
-    for (var app in apps) {
-      final packageName = app['packageName'] as String;
+    int foundDangerousApp = 0;
 
-      if (blacklist.contains(packageName)) {
-        threats++;
-        results.add(
-          ScanResult(
-            svg: 'assets/icons/secret.svg',
-            svgColor: Colors.red.withOpacity(0.2),
-            behaviour: "High",
-            behavColor: Colors.red,
-            explain: packageName,
-            smallExplain: "Dangerous app detected",
-          ),
-        );
-      } else {
-        results.add(
-          ScanResult(
-            svg: 'assets/icons/secret_blue.svg',
-            svgColor: Colors.blue.withOpacity(0.2),
-            behaviour: "Secure",
-            behavColor: Colors.blue,
-            explain: packageName,
-            smallExplain: "No dangerous app",
-          ),
-        );
+    for (final app in apps) {
+      final appMap = Map<String, dynamic>.from(app as Map);
+
+      scannedApps.add(appMap);
+
+      for (final app in scannedApps) {
+        final packageName = app['packageName'] as String;
+
+        if (blacklist.contains(packageName) &&
+            !results.any((e) => e.explain == packageName)) {
+          foundDangerousApp++;
+          threats++;
+
+          results.add(
+            ScanResult(
+              svg: 'assets/icons/secret.svg',
+              svgColor: Colors.red.withOpacity(0.2),
+              behaviour: "High",
+              behavColor: Colors.red,
+              explain: packageName,
+              smallExplain: "Dangerous app detected",
+            ),
+          );
+        }
       }
     }
+
+    if (foundDangerousApp == 0) {
+      results.add(
+        ScanResult(
+          svg: 'assets/icons/secret_blue.svg',
+          svgColor: Colors.blue.withOpacity(0.2),
+          behaviour: "Secure",
+          behavColor: Colors.blue,
+          explain: "No dangerous app",
+          smallExplain: "There are no harmful apps",
+        ),
+      );
+    }
+
+    emit(
+      SecuritySuccess(
+        results,
+        calculateScore(),
+        DateTime.now(),
+        threats,
+      ),
+    );
   }
   Future<void> checkVirusTotal(
       String sha256Hash,
@@ -232,7 +255,7 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
+   emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
   Future<void> checkFridaExist() async {
     emit(SecurityLoading());

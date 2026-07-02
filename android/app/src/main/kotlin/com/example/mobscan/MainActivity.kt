@@ -34,7 +34,7 @@ class MainActivity : FlutterActivity() {
 
                         val appsList = mutableListOf<Map<String, String>>()
 
-                        for (app in installedApps) {
+                        for (app in installedApps.take(10)) {
 
                             try {
 

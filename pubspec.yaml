@@ -55,6 +55,8 @@ dependencies:
   hydrated_bloc: ^10.1.1
   crypto: ^3.0.3
   flutter_local_notifications: ^19.4.0
+  intl: ^0.20.2
+  url_launcher: ^6.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
