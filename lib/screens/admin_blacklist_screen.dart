@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobscan/core/appcolors.dart';
 
+//---------------//
+//## Future Work
+// This feature is planned for future development.
 class AdminBlacklistScreen extends StatefulWidget {
   const AdminBlacklistScreen({super.key});
 

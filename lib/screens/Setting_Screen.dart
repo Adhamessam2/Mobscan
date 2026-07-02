@@ -118,7 +118,7 @@ class SettingsScreen extends StatelessWidget {
                         onChanged: (value) => context
                             .read<SettingsCubit>()
                             .toggleNotifications(value),
-                        activeColor: Colors.blueAccent,
+                        activeThumbColor: Colors.blueAccent,
                       ),
                     ),
 
@@ -212,19 +212,6 @@ class SettingsScreen extends StatelessWidget {
                     fontSize: 11,
                     letterSpacing: 1,
                   ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-              const SizedBox(height: 20),
-
-              Center(
-                child: Text(
-                  "VERSION 2.4.1 (BUILD 890)",
-                  style: TextStyle(
-                      color: theme.colorScheme.onSurface.withOpacity(0.24),
-                      fontSize: 11,
-                      letterSpacing: 1),
                 ),
               ),
             ],
