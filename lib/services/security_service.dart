@@ -7,7 +7,7 @@ import '../controllers/security_controller/service.dart';
 import 'notification_service.dart';
 
 class SecurityService {
-  static const platform = MethodChannel('mobscan/security');
+  static const platform = MethodChannel('app/security');
   Future<void> checkBlacklistedApps() async {
     final snapshot =
     await FirebaseFirestore.instance.collection('blacklist').get();

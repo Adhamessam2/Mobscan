@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobscan/screens/admin_blacklist_screen.dart';
-import 'package:mobscan/screens/home_page.dart';
-import 'package:mobscan/services/auth_service.dart';
+
+
+import '../../services/auth_service.dart';
+import '../admin_blacklist_screen.dart';
+import '../home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

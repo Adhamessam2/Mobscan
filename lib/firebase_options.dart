@@ -44,9 +44,9 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyDhRAfVfbmJD9Z_LTA0STmBXReREYWqiis',
     appId: '1:793206894125:web:01f103b9ca9b00eef112a4',
     messagingSenderId: '793206894125',
-    projectId: 'mobscan-7505e',
-    authDomain: 'mobscan-7505e.firebaseapp.com',
-    storageBucket: 'mobscan-7505e.firebasestorage.app',
+    projectId: 'app-7505e',
+    authDomain: 'app-7505e.firebaseapp.com',
+    storageBucket: 'app-7505e.firebasestorage.app',
     measurementId: 'G-BXJ59B1DLS',
   );
 
@@ -54,35 +54,35 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyBiUwYGXfOLEwM9lIYwYC7vVLrVhvdFUzQ',
     appId: '1:793206894125:android:db1ac0a3b1c29c3df112a4',
     messagingSenderId: '793206894125',
-    projectId: 'mobscan-7505e',
-    storageBucket: 'mobscan-7505e.firebasestorage.app',
+    projectId: 'app-7505e',
+    storageBucket: 'app-7505e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCNTZYL58M3JqYaKMaXBHMshLgrbbBIyQ4',
     appId: '1:793206894125:ios:ca1f2588701e8ae2f112a4',
     messagingSenderId: '793206894125',
-    projectId: 'mobscan-7505e',
-    storageBucket: 'mobscan-7505e.firebasestorage.app',
-    iosBundleId: 'com.example.mobscan',
+    projectId: 'app-7505e',
+    storageBucket: 'app-7505e.firebasestorage.app',
+    iosBundleId: 'com.mobscan.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCNTZYL58M3JqYaKMaXBHMshLgrbbBIyQ4',
     appId: '1:793206894125:ios:ca1f2588701e8ae2f112a4',
     messagingSenderId: '793206894125',
-    projectId: 'mobscan-7505e',
-    storageBucket: 'mobscan-7505e.firebasestorage.app',
-    iosBundleId: 'com.example.mobscan',
+    projectId: 'app-7505e',
+    storageBucket: 'app-7505e.firebasestorage.app',
+    iosBundleId: 'com.mobscan.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDhRAfVfbmJD9Z_LTA0STmBXReREYWqiis',
     appId: '1:793206894125:web:52bd456f6afcd70cf112a4',
     messagingSenderId: '793206894125',
-    projectId: 'mobscan-7505e',
-    authDomain: 'mobscan-7505e.firebaseapp.com',
-    storageBucket: 'mobscan-7505e.firebasestorage.app',
+    projectId: 'app-7505e',
+    authDomain: 'app-7505e.firebaseapp.com',
+    storageBucket: 'app-7505e.firebasestorage.app',
     measurementId: 'G-QGDN8YYXEC',
   );
 }

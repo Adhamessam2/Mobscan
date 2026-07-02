@@ -1,11 +1,11 @@
+import 'package:app/screens/safe_screen.dart';
+import 'package:app/screens/threat_detailes.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/core/appcolors.dart';
-import 'package:mobscan/models/app_model.dart';
-import 'package:mobscan/screens/safe_screen.dart';
-import 'package:mobscan/screens/threat_detailes.dart';
+import '../controllers/apps_controller/cubit/apps_cubit.dart';
+import '../core/appcolors.dart';
+import '../models/app_model.dart';
 
 class Apps extends StatefulWidget {
   const Apps({super.key});

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobscan/screens/home_page.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../controllers/apps_controller/cubit/apps_cubit.dart';
+import 'home_page.dart';
 
 class PermissionsScreen extends StatefulWidget {
     const PermissionsScreen({super.key});

@@ -1,14 +1,15 @@
+import 'package:app/services/risk_calculator_service.dart';
 import 'package:flutter/services.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:installed_apps/app_info.dart';
-import 'package:mobscan/models/app_model.dart';
-import 'package:mobscan/services/risk_calculator_service.dart';
+
+import '../models/app_model.dart';
 
 class AppScannerService {
   final RiskCalculatorService _riskEngine = RiskCalculatorService();
 
   // Method Channel
-  static const platform = MethodChannel('mobscan.scanner/permissions');
+  static const platform = MethodChannel('app.scanner/permissions');
 
   Future<List<AppModel>> scanDevice() async {
     List<AppModel> scannedResults = [];

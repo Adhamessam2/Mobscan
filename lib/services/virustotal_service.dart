@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-import 'package:mobscan/models/vt_link_result.dart';
-
-class VirusTotalService {
+import '../models/vt_link_result.dart';
+class VirusUrlService {
   static const String _apiKey = '7165900d04c37bb0dc21af8f44a2439c40a193d765c1f2433a3d5adde61cf250';
 
   Future<VtLinkResult> scanUrl(String url) async {
@@ -54,4 +52,5 @@ class VirusTotalService {
 
     return VtLinkResult.fromJson(analysisJson, url);
   }
+
 }

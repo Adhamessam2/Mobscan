@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mobscan"
+    namespace = "com.mobscan.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.mobscan"
+        applicationId = "com.mobscan.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

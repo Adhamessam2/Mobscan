@@ -1,4 +1,4 @@
-package com.example.mobscan
+package com.mobscan.app
 
 import android.content.pm.PackageManager
 import java.io.File
@@ -34,7 +34,7 @@ class MainActivity : FlutterActivity() {
 
                         val appsList = mutableListOf<Map<String, String>>()
 
-                        for (app in installedApps.take(10)) {
+                        for (app in installedApps) {
 
                             try {
 

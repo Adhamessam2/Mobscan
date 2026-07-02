@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobscan/controllers/link_check_controller/link_checker_cubit.dart';
-import 'package:mobscan/core/appcolors.dart';
-import 'package:mobscan/models/vt_link_result.dart';
+import '../controllers/link_check_controller/link_checker_cubit.dart';
+import '../core/appcolors.dart';
+import '../models/vt_link_result.dart';
 
 class LinkCheckerScreen extends StatelessWidget {
   const LinkCheckerScreen({super.key});

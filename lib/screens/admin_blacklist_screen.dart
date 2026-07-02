@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobscan/core/appcolors.dart';
+
+import '../core/appcolors.dart';
 
 //---------------//
 //## Future Work

@@ -1,18 +1,18 @@
+import 'package:app/screens/auth/auth_gate.dart';
+import 'package:app/screens/call_dispacher.dart';
+import 'package:app/services/app_scanner_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:mobscan/screens/main_dashboard.dart';
-import 'package:mobscan/screens/call_dispacher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:mobscan/core/appcolors.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
-import 'package:mobscan/controllers/security_controller/security_cubit.dart';
-import 'package:mobscan/firebase_options.dart';
-import 'package:mobscan/screens/auth/auth_gate.dart';
-import 'package:mobscan/services/app_scanner_service.dart';
+
+import 'controllers/apps_controller/cubit/apps_cubit.dart';
+import 'controllers/apps_controller/cubit/theme_cubit.dart';
+import 'controllers/security_controller/security_cubit.dart';
+import 'core/appcolors.dart';
+import 'firebase_options.dart';
 
 
 

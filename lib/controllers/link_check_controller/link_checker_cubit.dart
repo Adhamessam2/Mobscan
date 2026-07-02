@@ -1,12 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobscan/models/vt_link_result.dart';
-import 'package:mobscan/services/virustotal_service.dart';
+
+import '../../models/vt_link_result.dart';
+import '../../services/virustotal_service.dart';
 part 'link_checker_state.dart';
 
 class LinkCheckerCubit extends Cubit<LinkCheckerState> {
   LinkCheckerCubit() : super(const LinkCheckerState());
 
-  final VirusTotalService _service = VirusTotalService();
+  final VirusUrlService _service = VirusUrlService();
 
   Future<void> scanLink(String url) async {
     emit(

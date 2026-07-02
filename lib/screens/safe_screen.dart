@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobscan/models/app_model.dart';
+
+import '../models/app_model.dart';
+
 
 class SafeAppDetailScreen extends StatelessWidget {
   final AppModel app;

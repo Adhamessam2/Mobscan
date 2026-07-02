@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/models/app_model.dart';
+
+import '../controllers/apps_controller/cubit/apps_cubit.dart';
+import '../models/app_model.dart';
 
 class ThreatDetailScreen extends StatefulWidget {
   final AppModel app;

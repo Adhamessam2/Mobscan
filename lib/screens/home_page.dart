@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobscan/core/appcolors.dart';
-import 'package:mobscan/screens/Permissions_Screen.dart';
-import 'package:mobscan/screens/Setting_Screen.dart';
-import 'package:mobscan/screens/admin_blacklist_screen.dart';
-import 'package:mobscan/screens/apps.dart';
-import 'package:mobscan/screens/link_checker_screen.dart';
-import 'package:mobscan/screens/main_dashboard.dart';
+import '../core/appcolors.dart';
+import 'Permissions_Screen.dart';
+import 'Setting_Screen.dart';
+import 'apps.dart';
+import 'link_checker_screen.dart';
+import 'main_dashboard.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

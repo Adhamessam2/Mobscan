@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:app/controllers/security_controller/service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'package:meta/meta.dart';
-import 'package:mobscan/controllers/security_controller/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/Scan_result.dart';
 import '../../services/notification_service.dart';
 import '../../services/security_service.dart';
+import '../../services/virustotal_service.dart';
 
 part 'security_state.dart';
+
 
 class SecurityCubit extends Cubit<SecurityState> {
   SecurityCubit() : super(SecuirtyInitial());
@@ -23,7 +24,7 @@ class SecurityCubit extends Cubit<SecurityState> {
   int threats = 0;
   int score = 100;
   final SecurityService _service = SecurityService();
-  static const platform = MethodChannel('mobscan/security');
+  static const platform = MethodChannel('app/security');
 
   Future<bool> isNotificationEnabled() async {
     final prefs = await SharedPreferences.getInstance();

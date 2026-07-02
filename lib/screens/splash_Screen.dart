@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mobscan/screens/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Onborarding.dart';
+import 'home_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

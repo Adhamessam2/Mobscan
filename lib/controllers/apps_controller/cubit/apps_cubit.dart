@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:mobscan/models/app_model.dart';
-import 'package:mobscan/services/app_scanner_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/Scan_result.dart';
+import '../../../models/app_model.dart';
+import '../../../services/app_scanner_service.dart';
 
 part 'apps_state.dart';
 

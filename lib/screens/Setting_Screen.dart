@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/settings_cubit.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
-import 'package:mobscan/screens/auth/login_screen.dart';
-import 'package:mobscan/screens/home_page.dart';
-import 'package:mobscan/services/auth_service.dart';
-import 'package:mobscan/services/export_service.dart';
-import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
-import 'package:mobscan/controllers/security_controller/security_cubit.dart';
+import '../controllers/apps_controller/cubit/apps_cubit.dart';
+import '../controllers/apps_controller/cubit/settings_cubit.dart';
+import '../controllers/apps_controller/cubit/theme_cubit.dart';
+import '../controllers/security_controller/security_cubit.dart';
+import '../services/auth_service.dart';
+import '../services/export_service.dart';
+import 'auth/login_screen.dart';
+import 'home_page.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
