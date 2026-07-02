@@ -40,7 +40,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       await Workmanager().registerPeriodicTask(
         autoScanTaskId,
         autoScanTaskName,
-        frequency: const Duration(minutes: 15),
+        frequency: const Duration(hours: 6),
         existingWorkPolicy: ExistingWorkPolicy.replace,
         constraints: Constraints(
           networkType: NetworkType.not_required,

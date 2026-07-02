@@ -26,32 +26,24 @@ class VirusTotalService {
 
     final id = submitData['data']['id'];
 
-    Map<String, dynamic> analysisJson;
-    String status;
-    int attempts = 0;
+    await Future.delayed(const Duration(seconds: 2));
 
-    do {
-      await Future.delayed(const Duration(seconds: 3));
+    final resultResponse = await http.get(
+      Uri.parse(
+        'https://www.virustotal.com/api/v3/analyses/$id',
+      ),
+      headers: {
+        'x-apikey': _apiKey,
+      },
+    );
 
-      final resultResponse = await http.get(
-        Uri.parse('https://www.virustotal.com/api/v3/analyses/$id'),
-        headers: {'x-apikey': _apiKey},
-      );
-
-      if (resultResponse.statusCode != 200) {
-        throw Exception('Failed to get analysis');
-      }
-
-      analysisJson = jsonDecode(resultResponse.body);
-      status = analysisJson['data']['attributes']['status'];
-
-      attempts++;
-    } while (status != 'completed' && attempts < 15); // max ~45 sec
-
-    if (status != 'completed') {
-      throw Exception('Analysis timed out, try again');
+    if (resultResponse.statusCode != 200) {
+      throw Exception('Failed to get analysis');
     }
 
-    return VtLinkResult.fromJson(analysisJson, url);
+    return VtLinkResult.fromJson(
+      jsonDecode(resultResponse.body),
+      url,
+    );
   }
 }

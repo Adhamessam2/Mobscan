@@ -90,23 +90,6 @@ class _MainDashboardState extends State<MainDashboard> {
 
         actions: [
           GestureDetector(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              decoration: BoxDecoration(
-                color:theme.scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.notifications_none_outlined,
-                size: 30,
-                color: Color(0xFF007BFF),
-              ),
-            ),
-          ),
-
-          GestureDetector(
             onTap: () {
             },
             child: Container(
@@ -132,14 +115,6 @@ class _MainDashboardState extends State<MainDashboard> {
               SizedBox(height: 5),
           Column(
             children: [
-              Text(
-                'Hello,${widget.username}',
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 25,
-                ),
-              ),
               BlocBuilder<SecurityCubit,SecurityState>(builder: (context,state) {
                 if (state is SecurityLoading) {
                   return SizedBox();

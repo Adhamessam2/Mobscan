@@ -19,9 +19,9 @@ part 'security_state.dart';
 class SecurityCubit extends Cubit<SecurityState> {
   SecurityCubit() : super(SecuirtyInitial());
   List<ScanResult> results = [];
-  List<ScanResult>result_virus=[];
+  List<ScanResult> result_virus = [];
   int threats = 0;
-  int score = 100;
+  int? score = 100;
   final SecurityService _service = SecurityService();
   static const platform = MethodChannel('mobscan/security');
 
@@ -29,6 +29,7 @@ class SecurityCubit extends Cubit<SecurityState> {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('notifications') ?? true;
   }
+
   Future<void> sendNotificationIfEnabled({
     required String title,
     required String body,
@@ -40,7 +41,11 @@ class SecurityCubit extends Cubit<SecurityState> {
       );
     }
   }
-  Future<void> checkblacklistedApps() async {
+
+  // تعديل: إضافة الـ progress وتحديث الحالة
+  Future<void> checkblacklistedApps({int currentProgress = 0}) async {
+    emit(SecurityLoading(currentProgress));
+
     final snapshot =
     await FirebaseFirestore.instance.collection('blacklist').get();
 
@@ -81,6 +86,7 @@ class SecurityCubit extends Cubit<SecurityState> {
       }
     }
   }
+
   Future<void> checkVirusTotal(
       String sha256Hash,
       String packageName,
@@ -95,18 +101,12 @@ class SecurityCubit extends Cubit<SecurityState> {
     );
 
     if (response.statusCode == 200) {
-      final data =
-      jsonDecode(response.body);
+      final data = jsonDecode(response.body);
 
-      final stats =
-      data['data']['attributes']
-      ['last_analysis_stats'];
+      final stats = data['data']['attributes']['last_analysis_stats'];
 
-      final malicious =
-          stats['malicious'] ?? 0;
-
-      final suspicious =
-          stats['suspicious'] ?? 0;
+      final malicious = stats['malicious'] ?? 0;
+      final suspicious = stats['suspicious'] ?? 0;
       final harmless = stats['harmless'] ?? 0;
 
       debugPrint(
@@ -116,9 +116,9 @@ class SecurityCubit extends Cubit<SecurityState> {
       );
     }
   }
+
   Future<void> scanApps() async {
-    final apps =
-    await VirusTotalService().getInstalledAppsNames();
+    final apps = await VirusTotalService().getInstalledAppsNames();
 
     for (final app in apps.take(5)) {
       try {
@@ -131,8 +131,10 @@ class SecurityCubit extends Cubit<SecurityState> {
       }
     }
   }
-  Future<void> checkRootJailbreak() async {
-    emit(SecurityLoading());
+
+  // تعديل: استقبال الـ progress الحالي، وحذف الـ SecuritySuccess من النهاية
+  Future<void> checkRootJailbreak({int currentProgress = 0}) async {
+    emit(SecurityLoading(currentProgress));
 
     final isNotTrust = await _service.isRooted();
     final isRealDevice = await _service.isRealDevice();
@@ -193,7 +195,7 @@ class SecurityCubit extends Cubit<SecurityState> {
       );
     }
 
-    if (isDevmode){
+    if (isDevmode) {
       threats++;
       results.add(
         ScanResult(
@@ -206,8 +208,7 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    if (isDebug)
-    {
+    if (isDebug) {
       threats++;
       results.add(
         ScanResult(
@@ -232,15 +233,14 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    print("Score = ${calculateScore()}");
-    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
-  Future<void> checkFridaExist() async {
-    emit(SecurityLoading());
+
+  // تعديل: استقبال الـ progress الحالي، وحذف الـ SecuritySuccess من النهاية
+  Future<void> checkFridaExist({int currentProgress = 0}) async {
+    emit(SecurityLoading(currentProgress));
 
     bool isFrida = await _service.checkFrida();
     if (isFrida) {
-
       threats++;
       results.add(
         ScanResult(
@@ -252,7 +252,8 @@ class SecurityCubit extends Cubit<SecurityState> {
           smallExplain: "Device is insecure",
         ),
       );
-    } if(!isFrida) {
+    }
+    if (!isFrida) {
       results.add(
         ScanResult(
           svg: 'assets/icons/hook_blue.svg',
@@ -264,8 +265,6 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    print("Score = ${calculateScore()}");
-    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
 
   int calculateScore() {
@@ -289,31 +288,45 @@ class SecurityCubit extends Cubit<SecurityState> {
     }
     return score.clamp(0, 100);
   }
+
+  // تعديل: إدارة الـ الـ Progress بشكل يعبر عن الفحص الفعلي وتأخير وهمي بسيط لتجربة مستخدم سلسة
   Future<void> fullScan() async {
     results = [];
     threats = 0;
 
-    for (int i = 0; i <= 100; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));
+    // 1. فحص Frida (النسبة تبدأ وتتحرك لـ 30%)
+    for (int i = 0; i <= 30; i++) {
+      await Future.
+      delayed(Duration(milliseconds: 10));
       emit(SecurityLoading(i));
     }
+    await checkFridaExist(currentProgress: 30);
 
-    await checkFridaExist();
-    await checkRootJailbreak();
-    await checkblacklistedApps();
+    // 2. فحص الـ Root والـ Emulator (النسبة تتحرك لـ 70%)
+    for (int i = 31; i <= 70; i++) {
+      await Future.delayed(Duration(milliseconds: 10));
+      emit(SecurityLoading(i));
+    }
+    await checkRootJailbreak(currentProgress: 70);
 
-    print("Final score = ${calculateScore()}");
+    // 3. فحص الـ Blacklisted Apps (النسبة تتحرك لـ 100%)
+    for (int i = 71; i <= 99; i++) {
+      await Future.delayed(Duration(milliseconds:10));
+      emit(SecurityLoading(i));
+    }
+    await checkblacklistedApps(currentProgress: 100);
 
-    emit(SecuritySuccess(
-      results,
-      calculateScore(),
-      DateTime.now(),
-      threats,
-    ));
+    // 4. إرسال حالة النجاح النهائية مرة واحدة فقط
+    final now = DateTime.now();
+    emit(SecuritySuccess(results, calculateScore(), now, threats));
+
+    // حفظ تاريخ الفحص الأخير
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_scan', now.toIso8601String());
   }
+
   Future<void> getLastScan() async {
     final prefs = await SharedPreferences.getInstance();
-
     final lastScanString = prefs.getString('last_scan');
 
     if (lastScanString != null) {
