@@ -21,7 +21,7 @@ class SecurityCubit extends Cubit<SecurityState> {
   List<ScanResult> results = [];
   List<ScanResult>result_virus=[];
   int threats = 0;
-  int? score = 100;
+  int score = 100;
   final SecurityService _service = SecurityService();
   static const platform = MethodChannel('mobscan/security');
 
@@ -232,6 +232,7 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
+    print("Score = ${calculateScore()}");
     emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
   Future<void> checkFridaExist() async {
@@ -263,6 +264,7 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
+    print("Score = ${calculateScore()}");
     emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
 
@@ -290,15 +292,24 @@ class SecurityCubit extends Cubit<SecurityState> {
   Future<void> fullScan() async {
     results = [];
     threats = 0;
-    for (int i = 0; i <= 100; i++) {
-      await Future.delayed(Duration(milliseconds: 50));
-      emit(SecurityLoading(i));
 
+    for (int i = 0; i <= 100; i++) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      emit(SecurityLoading(i));
     }
-      await checkFridaExist();
-      await checkRootJailbreak();
-      //await scanApps();
+
+    await checkFridaExist();
+    await checkRootJailbreak();
     await checkblacklistedApps();
+
+    print("Final score = ${calculateScore()}");
+
+    emit(SecuritySuccess(
+      results,
+      calculateScore(),
+      DateTime.now(),
+      threats,
+    ));
   }
   Future<void> getLastScan() async {
     final prefs = await SharedPreferences.getInstance();
