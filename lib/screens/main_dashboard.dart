@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MainDashboard extends StatefulWidget {
   String username;
   String _result = '';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 
   MainDashboard({super.key, this.username = 'User'});
@@ -58,12 +59,11 @@ class _MainDashboardState extends State<MainDashboard> {
     final theme = Theme.of(context);
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Color(0xff0A0E14),
-
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         forceMaterialTransparency: true,
         toolbarHeight: 70,
-        backgroundColor: Color(0xff0A0E14),
+        backgroundColor: theme.scaffoldBackgroundColor,
         leadingWidth: 140,
         leading: Container(
           padding: EdgeInsets.only(left: 16),
@@ -95,7 +95,7 @@ class _MainDashboardState extends State<MainDashboard> {
               margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
-                color: Color(0xFF111827),
+                color:theme.scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -113,7 +113,7 @@ class _MainDashboardState extends State<MainDashboard> {
               margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: Color(0xFF111827),
+                color:theme.scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -125,121 +125,119 @@ class _MainDashboardState extends State<MainDashboard> {
           ),
         ],
       ),
-
-      body: Center(
-        child: Column(
-          spacing: 2,
-          children: [
-            SizedBox(height: 5),
-            Column(
+        body: Center(
+          child: Column(
+              spacing: 2,
               children: [
-                Text(
-                  'Hello,${widget.username}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 25,
-                  ),
+              SizedBox(height: 5),
+          Column(
+            children: [
+              Text(
+                'Hello,${widget.username}',
+                style: TextStyle(
+                  color: colors.onSurface,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 25,
                 ),
-                BlocBuilder<SecurityCubit,SecurityState>(builder: (context,state) {
-                  if (state is SecurityLoading) {
-                    return SizedBox();
-                  }
-                  if (state is SecuritySuccess && state.threats==0) {
-                    return Container(
-                      height: 42,
-                      width: 250,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset('assets/icons/plot_blue.svg'),
-                          SizedBox(width: 5),
-                          Text_color('Device Status: ',Colors.blue!),
-                          Text_color('Safe',Colors.blue!),
-                        ],
-                      ),
-                    );
-                    }
-                  if(state is SecuritySuccess && state.threats !=0) {
-                    return Container(
-                      height: 42,
-                      width: 250,
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset('assets/icons/plot.svg'),
-                          SizedBox(width: 5),
-                          Text_color('Device Status: ', Colors.redAccent!),
-                          Text_color('At Risk', Colors.redAccent!),
-                        ],
-                      ),
-                    );
-                  }
+              ),
+              BlocBuilder<SecurityCubit,SecurityState>(builder: (context,state) {
+                if (state is SecurityLoading) {
                   return SizedBox();
-
                 }
-                  )
-              ],
-            ),
+                if (state is SecuritySuccess && state.threats==0) {
+                  return Container(
+                    height: 42,
+                    width: 250,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset('assets/icons/plot_blue.svg'),
+                        SizedBox(width: 5),
+                        Text_color('Device Status: ',Colors.blue!),
+                        Text_color('Safe',Colors.blue!),
+                      ],
+                    ),
+                  );
+                }
+                if(state is SecuritySuccess && state.threats !=0) {
+                  return Container(
+                    height: 42,
+                    width: 250,
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset('assets/icons/plot.svg'),
+                        SizedBox(width: 5),
+                        Text_color('Device Status: ', Colors.redAccent!),
+                        Text_color('At Risk', Colors.redAccent!),
+                      ],
+                    ),
+                  );
+                }
+                return SizedBox();
 
-            SizedBox(height: 10),
-
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              height: 165,
-              width: 170,
-              child:  BlocBuilder<SecurityCubit, SecurityState>(
-                builder: (context, state) {
-                  if(state is SecuirtyInitial){
-                    return Container(
-                        child:Stack(
-                          children: [
-                           Center(child: Text('Start',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 30),), )
-                            ,SvgPicture.asset('assets/icons/vector.svg'),
-                          ],
-                        ));
-                  }
-                  if (state is SecurityLoading) {
-                    return CircularProgressIndicator(
-                      color: Color(0xFF007BFF),
-                      strokeWidth: 15,
-                    );
-                  }
-                  if (state is SecuritySuccess && state.threats!=0) {
-                    return CircularProgressIndicator(
-                      value: state.score / 100,
-                      color: Color(0xffFF4D4D),
-                      strokeWidth: 15,
-                    );
-                  }
-                  if (state is SecuritySuccess) {
-                    return CircularProgressIndicator(
-                      value: state.score / 100,
-                      color: Color(0xFF007BFF),
-                      strokeWidth: 15,
-                    );
-                  }
-                  return SizedBox();
-                },
+              }
               )
-            ),
-                Column(
-                  children: [
-                    BlocBuilder<SecurityCubit, SecurityState>(
-                      builder: (context, state) {
-                        if (state is SecuirtyInitial) {
-                        }
-                        if (state is SecuritySuccess && state.threats !=0) {
+            ],
+          ),
+
+          SizedBox(height: 10),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                  height: 165,
+                  width: 170,
+                  child:  BlocBuilder<SecurityCubit, SecurityState>(
+                    builder: (context, state) {
+                      if(state is SecuirtyInitial){
+                        return Container(
+                            child:Stack(
+                              children: [
+                                Center(child: Text('Start',style: TextStyle(fontWeight: FontWeight.bold,color: colors.onSurface,fontSize: 30),), )
+                                ,SvgPicture.asset('assets/icons/vector.svg'),
+                              ],
+                            ));
+                      }
+                      if (state is SecurityLoading) {
+                        return CircularProgressIndicator(
+                          color: Color(0xFF007BFF),
+                          strokeWidth: 15,
+                        );
+                      }
+                      if (state is SecuritySuccess && state.threats!=0) {
+                        return CircularProgressIndicator(
+                          value: state.score / 100,
+                          color: Color(0xffFF4D4D),
+                          strokeWidth: 15,
+                        );
+                      }
+                      if (state is SecuritySuccess) {
+                        return CircularProgressIndicator(
+                          value: state.score / 100,
+                          color: Color(0xFF007BFF),
+                          strokeWidth: 15,
+                        );
+                      }
+                      return SizedBox();
+                    },
+                  )
+              ),
+              Column(
+                children: [
+                  BlocBuilder<SecurityCubit, SecurityState>(
+                    builder: (context, state) {
+                      if (state is SecuirtyInitial) {
+                      }
+                      if (state is SecuritySuccess && state.threats !=0) {
                         return Text(
                           '${state.score}%',
                           style: TextStyle(
@@ -249,159 +247,159 @@ class _MainDashboardState extends State<MainDashboard> {
                           ),
                         );
                       }
-                        if (state is SecuritySuccess) {
-                           return Text(
-                            '${state.score}%',
-                            style: TextStyle(
-                              color: Color(0xFF007BFF),
-                              fontSize: 50,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          );
-                        }
+                      if (state is SecuritySuccess) {
+                        return Text(
+                          '${state.score}%',
+                          style: TextStyle(
+                            color: Color(0xFF007BFF),
+                            fontSize: 50,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        );
+                      }
 
-                        if(state is SecurityLoading){
-                          return Column(
-                            children: [ Text(
+                      if(state is SecurityLoading){
+                        return Column(
+                          children: [ Text(
                             'SECURITY SCORE',
                             style: TextStyle(
                               color: Color.fromRGBO(148, 163, 184, 1),
                             ),
                           ),
-                        Text('${state.progress}%',
+                            Text('${state.progress}%',
+                                style: TextStyle(
+                                  color: Color(0xFF007BFF),
+                                  fontSize: 50,
+                                  fontWeight: FontWeight.w900,
+                                ))],);
+                      }
+                      return Text('');
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    context.read<SecurityCubit>().fullScan();
+                  },
+                  child: Container(
+                    width: 358,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF007BFF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('assets/icons/scan.svg'),
+                          SizedBox(width: 10),
+                          Text(
+                            'Scan Now',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                BlocBuilder<SecurityCubit, SecurityState>(
+                  builder: (context, state) {
+                    if (state is SecuirtyInitial) {
+                      return Text(
+                        state.lastScan != null
+                            ? 'Last scan: ${formatTime(state.lastScan!)}'
+                            : '',
+                      );
+                    }
+                    if (state is SecuritySuccess) {
+                      return Text(
+                        'Last scan: ${formatTime(state.lastScan!)} • ${state?.threats??0} threats found',
+                        style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+                      );
+                    }
+                    if(state is SecurityLoading) {
+                      return Text(
+                        'scanning...',
+                        style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
+                      );
+                    }
+                    return SizedBox();
+                  },
+                ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'SECURITY MODELS',
                         style: TextStyle(
-                        color: Color(0xFF007BFF),
-                        fontSize: 50,
-                        fontWeight: FontWeight.w900,
-                        ))],);
-                        }
-                        return Text('');
-                      },
+                          color: Color.fromRGBO(100, 116, 139, 1),
+                          fontSize: 19,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-
-            SizedBox(height: 20),
-
-            GestureDetector(
-              onTap: () {
-                context.read<SecurityCubit>().fullScan();
-                },
-              child: Container(
-                width: 358,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Color(0xFF007BFF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset('assets/icons/scan.svg'),
-                      SizedBox(width: 10),
-                      Text(
-                        'Scan Now',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            BlocBuilder<SecurityCubit, SecurityState>(
-              builder: (context, state) {
-                if (state is SecuirtyInitial) {
-                  return Text(
-                    state.lastScan != null
-                        ? 'Last scan: ${formatTime(state.lastScan!)}'
-                        : '',
-                  );
-                }
-                if (state is SecuritySuccess) {
-                  return Text(
-                    'Last scan: ${formatTime(state.lastScan!)} • ${state?.threats??0} threats found',
-                    style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
-                  );
-                }
-                if(state is SecurityLoading) {
-                 return Text(
-                    'scanning...',
-                    style: TextStyle(color: Color.fromRGBO(100, 116, 139, 1)),
-                  );
-                }
-                return SizedBox();
-              },
-            ),
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'SECURITY MODELS',
-                    style: TextStyle(
-                      color: Color.fromRGBO(100, 116, 139, 1),
-                      fontSize: 19,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Expanded(
-              child:
+                Expanded(
+                  child:
                   BlocBuilder<SecurityCubit,SecurityState>(builder: (BuildContext context,state) {
                     final res = context.read<SecurityCubit>();
                     if(state is SecurityLoading){
                     }
                     if(state is SecuritySuccess) {
                       return GridView.builder(
-                      scrollDirection: Axis.vertical,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: 1.5,
-                      ),
-                      itemCount: res.results.length,
-                      itemBuilder: (context, index) {
-                   final item = res.results[index];
-                     return report_container(
-                         item.svg,
-                        item.svgColor,
-                         item.behaviour,
-                         item.behavColor,
-                         item.explain,
-                     item.smallExplain);
-                      }
-                    );
+                          scrollDirection: Axis.vertical,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            childAspectRatio: 1.5,
+                          ),
+                          itemCount: res.results.length,
+                          itemBuilder: (context, index) {
+                            final item = res.results[index];
+                            return report_container(
+                                context,
+                                item.svg,
+                                item.svgColor,
+                                item.behaviour,
+                                item.behavColor,
+                                item.explain,
+                                item.smallExplain);
+                          }
+                      );
                     } else {
                       return Text('');
                     }
                   }
                   ),
-            )]
-            )
-      )    );
-   }
-
+                )]
+          )
+        )    );
+  }
 }
 Widget Text_color(String example,Color status){
   return Text(
-'$example',
-style:TextStyle(
-color: status,
-  fontSize: 18,
-  fontWeight: FontWeight.bold,
-),
-);
+    '$example',
+    style:TextStyle(
+      color: status,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+  );
 }
 Widget report_container(
+    BuildContext context,
     String svg,
     Color svgcolor,
     String behaviour,
@@ -413,7 +411,7 @@ Widget report_container(
     padding: const EdgeInsets.all(12),
     width: double.infinity, // ياخد عرض الشاشة
     decoration: BoxDecoration(
-      color: const Color.fromRGBO(22, 27, 34, 1),
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
         color: const Color.fromRGBO(255, 255, 255, 0.05),
@@ -457,8 +455,8 @@ Widget report_container(
 
         Text(
           explain,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),

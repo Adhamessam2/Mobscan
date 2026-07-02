@@ -1,6 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mobscan/services/auth_service.dart';
+import 'package:mobscan/core/appcolors.dart';
 
 class AdminBlacklistScreen extends StatefulWidget {
   const AdminBlacklistScreen({super.key});
@@ -10,396 +9,272 @@ class AdminBlacklistScreen extends StatefulWidget {
 }
 
 class _AdminBlacklistScreenState extends State<AdminBlacklistScreen> {
-  static const Color bg = Color(0xFF071826);
-  static const Color card = Color(0xFF0F1923);
-  static const Color primary = Color(0xFF007BFF);
-  static const Color danger = Color(0xFFE5484D);
+  final _appNameCtrl = TextEditingController();
+  final _packageCtrl = TextEditingController();
+  final _reasonCtrl  = TextEditingController();
+  final _formKey     = GlobalKey<FormState>();
+  bool _formVisible  = false;
 
-  final _formKey = GlobalKey<FormState>();
-  final _appNameController = TextEditingController();
-  final _reasonController = TextEditingController();
-  final AuthService _authService = AuthService();
-  bool _isLoading = false;
-
-  final CollectionReference _blacklistRef =
-  FirebaseFirestore.instance.collection('blacklist');
+  final List<Map<String, String>> _items = [];
 
   @override
   void dispose() {
-    _appNameController.dispose();
-    _reasonController.dispose();
+    _appNameCtrl.dispose();
+    _packageCtrl.dispose();
+    _reasonCtrl.dispose();
     super.dispose();
   }
 
-  void _showSnack(String message, {required bool isError}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: isError ? danger : const Color(0xFF1B2A38),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        content: Text(message, style: const TextStyle(color: Colors.white)),
+  void _add() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _items.insert(0, {
+          'appName':     _appNameCtrl.text.trim(),
+          'packageName': _packageCtrl.text.trim(),
+          'reason':      _reasonCtrl.text.trim(),
+        });
+        _appNameCtrl.clear();
+        _packageCtrl.clear();
+        _reasonCtrl.clear();
+        _formVisible = false;
+      });
+    }
+  }
+
+  void _delete(int index) {
+    final cs = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(
+          'Remove "${_items[index]['appName']}"?',
+          style: TextStyle(color: cs.onSurface),
+        ),
+        content: Text(
+          'This will remove "${_items[index]['packageName']}" from the blacklist.',
+          style: TextStyle(color: Appcolors.text),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: cs.onSurface)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() => _items.removeAt(index));
+            },
+            child: const Text('Remove', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
       ),
     );
-  }
-
-  Future<void> _addToBlacklist() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (!_authService.isAdmin) {
-      _showSnack('Access denied', isError: true);
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    try {
-      await _blacklistRef.add({
-        'app_name': _appNameController.text.trim(),
-        'reason': _reasonController.text.trim(),
-        'added_by': _authService.currentUser?.email,
-        'added_at': FieldValue.serverTimestamp(),
-      });
-
-      if (mounted) {
-        _showSnack('Package added to blacklist', isError: false);
-        _appNameController.clear();
-        _reasonController.clear();
-      }
-    } catch (e) {
-      if (mounted) _showSnack('Error: $e', isError: true);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _deleteFromBlacklist(String docId) async {
-    await _blacklistRef.doc(docId).delete();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_authService.isAdmin) {
-      return Scaffold(
-        backgroundColor: bg,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.lock_outline,
-                    color: Colors.white.withOpacity(0.3), size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'You are not authorized to access this page',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
+    final theme = Theme.of(context);
+    final cs    = theme.colorScheme;
     return Scaffold(
-      backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: bg,
-        elevation: 0,
-        title: const Text(
-          'Manage Blacklist',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
+        backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: AppBar(
+          forceMaterialTransparency: true,
+          title: Text(
+            'Blacklist Manager',
+            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
           ),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildFormCard(),
-            const SizedBox(height: 28),
-            Row(
-              children: [
-                Text(
-                  'Blocked Packages',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const Spacer(),
-                _buildCountBadge(),
-              ],
+          iconTheme: IconThemeData(color: cs.onSurface),
+          actions: [
+            IconButton(
+              onPressed: () => setState(() => _formVisible = !_formVisible),
+              icon: Icon(_formVisible ? Icons.close : Icons.add, color: Colors.blue),
             ),
-            const SizedBox(height: 14),
-            Expanded(child: _buildList()),
           ],
         ),
-      ),
-    );
-  }
+        body: Column(
+            children: [
+            // ─── Add Form ─────────────────────────────────────────────────
+            if (_formVisible)
+        Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+    color: cs.tertiary,
+    borderRadius: BorderRadius.circular(12),
+    ),
+    child: Form(
+    key: _formKey,
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+    _Field(controller: _appNameCtrl, label: 'App Name',     hint: 'e.g. BadApp',          theme: theme),
+    const SizedBox(height: 10),
+    _Field(controller: _packageCtrl, label: 'Package Name', hint: 'e.g. com.bad.app',      theme: theme),
+    const SizedBox(height: 10),
+    _Field(controller: _reasonCtrl,  label: 'Reason',       hint: 'e.g. Contains malware', theme: theme, maxLines: 2),
+    const SizedBox(height: 14),
+    GestureDetector(
+    onTap: _add,
+    child: Container(
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    decoration: BoxDecoration(
+    color: Colors.blue,
+    borderRadius: BorderRadius.circular(10),
+    ),
+    child: const Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+    Icon(Icons.block, color: Colors.white, size: 18),
+    SizedBox(width: 8),
+    Text('Add to Blacklist',
+    style: TextStyle(
+    color: Colors.white,
+    fontWeight: FontWeight.w600,
+    fontSize: 15,
+    )),
+    ],
+    ),
+    ),
+    ),
+    ],
+    ),
+    ),
+    ),
 
-  Widget _buildCountBadge() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _blacklistRef.snapshots(),
-      builder: (context, snapshot) {
-        final count = snapshot.data?.docs.length ?? 0;
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: danger.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            '$count',
-            style: const TextStyle(
-              color: danger,
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildFormCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: card,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: primary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.add_moderator_outlined,
-                      color: primary, size: 20),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Add New Package',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildField(
-              controller: _appNameController,
-              label: 'App Name',
-              hint: 'e.g. com.malicious.app',
-              icon: Icons.android,
-              validatorMsg: 'Enter the app name',
-            ),
-            const SizedBox(height: 16),
-            _buildField(
-              controller: _reasonController,
-              label: 'Reason',
-              hint: 'Reason for adding to blacklist',
-              icon: Icons.warning_amber_rounded,
-              maxLines: 2,
-              validatorMsg: 'Enter the reason',
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: Material(
-                color: danger,
-                borderRadius: BorderRadius.circular(14),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: _isLoading ? null : _addToBlacklist,
-                  child: Center(
-                    child: _isLoading
-                        ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        color: Colors.white,
+    // ─── Stats ────────────────────────────────────────────────────
+    Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Row(
+    children: [
+    Text('Total blocked: ${_items.length}',
+    style: TextStyle(color: Appcolors.text)),
+    const Spacer(),
+    const Icon(Icons.circle, color: Colors.blue, size: 12),
+    const SizedBox(width: 5),
+    Text('live', style: TextStyle(color: Appcolors.text)),
+    ],
+    ),
+    ),
+    const SizedBox(height: 10),
+    Divider(color: Colors.grey.shade700),
+    const SizedBox(height: 10),
+              // ─── List ─────────────────────────────────────────────────────
+              Expanded(
+                child: _items.isEmpty
+                    ? Center(
+                  child: Text('No packages blacklisted yet.',
+                      style: TextStyle(color: Appcolors.text)),
+                )
+                    : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: _items.length,
+                  itemBuilder: (context, i) {
+                    final item = _items[i];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: cs.tertiary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.block,
+                                color: Colors.redAccent, size: 24),
+                          ),
+                          title: Text(
+                            item['appName']!,
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item['packageName']!,
+                                  style: const TextStyle(
+                                      color: Colors.blue, fontSize: 12)),
+                              if (item['reason']!.isNotEmpty)
+                                Text(item['reason']!,
+                                    style: TextStyle(
+                                        color: Appcolors.text, fontSize: 12),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.redAccent),
+                            onPressed: () => _delete(i),
+                          ),
+                          isThreeLine: item['reason']!.isNotEmpty,
+                        ),
                       ),
-                    )
-                        : const Text(
-                      'Add to Blacklist',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
-            ),
-          ],
+            ],
         ),
-      ),
     );
   }
+}
 
-  Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    required String validatorMsg,
-    int maxLines = 1,
-  }) {
+class _Field extends StatelessWidget {
+  const _Field({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.theme,
+    this.maxLines = 1,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final ThemeData theme;
+  final int maxLines;
+  @override
+  Widget build(BuildContext context) {
+    final cs = theme.colorScheme;
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(color: Colors.white),
-      cursorColor: primary,
+      style: TextStyle(color: cs.onSurface, fontSize: 15),
+      validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.25)),
-        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.4)),
+        labelStyle: TextStyle(color: cs.onSurface.withOpacity(0.5)),
+        hintStyle: TextStyle(color: Appcolors.text),
         filled: true,
-        fillColor: bg,
+        fillColor: theme.scaffoldBackgroundColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
-        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: primary, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.blue),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: danger, width: 1.2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.redAccent),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.redAccent),
         ),
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) return validatorMsg;
-        return null;
-      },
-    );
-  }
-
-  Widget _buildList() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _blacklistRef.orderBy('added_at', descending: true).snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: primary),
-          );
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.shield_outlined,
-                    color: Colors.white.withOpacity(0.15), size: 56),
-                const SizedBox(height: 12),
-                Text(
-                  'Blacklist is empty',
-                  style: TextStyle(color: Colors.white.withOpacity(0.4)),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final docs = snapshot.data!.docs;
-
-        return ListView.separated(
-          itemCount: docs.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
-          itemBuilder: (context, index) {
-            final data = docs[index].data() as Map<String, dynamic>;
-            return Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: card,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.04)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: danger.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.block, color: danger, size: 20),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          data['app_name'] ?? '',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.5,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          data['reason'] ?? '',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
-                            fontSize: 12.5,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete_outline,
-                        color: Colors.white.withOpacity(0.3)),
-                    onPressed: () => _deleteFromBlacklist(docs[index].id),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }
