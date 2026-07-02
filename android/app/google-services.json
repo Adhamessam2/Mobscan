@@ -12,7 +12,20 @@
           "package_name": "com.example.mobscan"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "793206894125-2d3nbq0c1edkcvql2fob5jcbc1bkbrj2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mobscan",
+            "certificate_hash": "a02f71711fe810c714a50403ccd536a4dbef3fbe"
+          }
+        },
+        {
+          "client_id": "793206894125-jfr15bav36oeu2c9ee1lct8ta4gt416t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBiUwYGXfOLEwM9lIYwYC7vVLrVhvdFUzQ"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "793206894125-jfr15bav36oeu2c9ee1lct8ta4gt416t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "793206894125-djequkla0f9be95b78u7qcl03usm5v8j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mobscan"
+              }
+            }
+          ]
         }
       }
     }
