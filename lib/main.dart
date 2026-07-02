@@ -2,28 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:mobscan/screens/call_dispacher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:workmanager/workmanager.dart';
-
 import 'package:mobscan/core/appcolors.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 import 'package:mobscan/firebase_options.dart';
-import 'package:mobscan/screens/splash_Screen.dart';
 import 'package:mobscan/screens/auth/auth_gate.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
 
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    if (task == 'mobscan_auto_scan') {
-      final scannerService = AppScannerService();
-      await scannerService.scanDevice();
-    }
-    return Future.value(true);
-  });
-}
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -27,7 +27,9 @@ class SettingsCubit extends Cubit<SettingsState> {
     await prefs.setBool('autoScan', value);
 
     if (value) {
-      // Register periodic background scan every 6 hours
+      // Register periodic background scan every 15 minutes
+      // (this is Android's minimum allowed interval for periodic
+      // WorkManager tasks — you cannot go lower than this)
       final notificationStatus = await Permission.notification.request();
 
       if (!notificationStatus.isGranted) {

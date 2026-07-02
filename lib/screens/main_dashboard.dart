@@ -361,9 +361,9 @@ class _MainDashboardState extends State<MainDashboard> {
                           scrollDirection: Axis.vertical,
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            mainAxisSpacing: 10,
                             crossAxisSpacing: 10,
-                            childAspectRatio: 1.5,
+                            mainAxisSpacing: 10,
+                            mainAxisExtent: 180,
                           ),
                           itemCount: res.results.length,
                           itemBuilder: (context, index) {
