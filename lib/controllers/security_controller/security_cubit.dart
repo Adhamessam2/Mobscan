@@ -25,6 +25,9 @@ class SecurityCubit extends Cubit<SecurityState> {
   final SecurityService _service = SecurityService();
   static const platform = MethodChannel('mobscan/security');
 
+  // مدة صلاحية الكاش الخاص بالـ blacklist (ساعة واحدة)
+  static const _blacklistCacheDuration = Duration(hours: 1);
+
   Future<bool> isNotificationEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('notifications') ?? true;
@@ -42,20 +45,46 @@ class SecurityCubit extends Cubit<SecurityState> {
     }
   }
 
-  // تعديل: إضافة الـ progress وتحديث الحالة
-  Future<void> checkblacklistedApps({int currentProgress = 0}) async {
-    emit(SecurityLoading(currentProgress));
+  /// بيجيب الـ blacklist من الكاش المحلي لو لسه صالح،
+  /// وإلا بيجيبها من Firestore ويخزنها كاش من جديد.
+  Future<Set<String>> _getBlacklist() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString('blacklist_cache');
+    final cachedAtMs = prefs.getInt('blacklist_cache_time') ?? 0;
+    final cachedAt = DateTime.fromMillisecondsSinceEpoch(cachedAtMs);
+    final isFresh =
+        cached != null &&
+            DateTime.now().difference(cachedAt) < _blacklistCacheDuration;
+
+    if (isFresh) {
+      final List<dynamic> ids = jsonDecode(cached);
+      return ids.cast<String>().toSet();
+    }
 
     final snapshot =
     await FirebaseFirestore.instance.collection('blacklist').get();
+    final ids = snapshot.docs.map((doc) => doc.id).toList();
 
-    final apps = await VirusTotalService().getInstalledAppsNames();
+    await prefs.setString('blacklist_cache', jsonEncode(ids));
+    await prefs.setInt(
+      'blacklist_cache_time',
+      DateTime.now().millisecondsSinceEpoch,
+    );
 
-    Set<String> blacklist = {};
+    return ids.toSet();
+  }
 
-    for (var doc in snapshot.docs) {
-      blacklist.add(doc.id);
-    }
+  // تعديل: استخدام الكاش المحلي للـ blacklist بدل جلبها من Firestore في كل مرة
+  Future<void> checkblacklistedApps({int currentProgress = 0}) async {
+    emit(SecurityLoading(currentProgress));
+
+    final results2 = await Future.wait([
+      _getBlacklist(),
+      VirusTotalService().getInstalledAppsNames(),
+    ]);
+
+    final blacklist = results2[0] as Set<String>;
+    final apps = results2[1] as List<dynamic>;
 
     for (var app in apps) {
       final packageName = app['packageName'] as String;
@@ -120,26 +149,36 @@ class SecurityCubit extends Cubit<SecurityState> {
   Future<void> scanApps() async {
     final apps = await VirusTotalService().getInstalledAppsNames();
 
-    for (final app in apps.take(5)) {
-      try {
-        await checkVirusTotal(
-          app['hash'],
-          app['packageName'],
-        );
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-    }
+    // تعديل: تنفيذ الفحوصات بالتوازي بدل واحد ورا التاني
+    await Future.wait(
+      apps.take(5).map((app) async {
+        try {
+          await checkVirusTotal(
+            app['hash'],
+            app['packageName'],
+          );
+        } catch (e) {
+          debugPrint(e.toString());
+        }
+      }),
+    );
   }
 
-  // تعديل: استقبال الـ progress الحالي، وحذف الـ SecuritySuccess من النهاية
+  // تعديل: تنفيذ كل نداءات native بالتوازي عن طريق Future.wait بدل التتابع
   Future<void> checkRootJailbreak({int currentProgress = 0}) async {
     emit(SecurityLoading(currentProgress));
 
-    final isNotTrust = await _service.isRooted();
-    final isRealDevice = await _service.isRealDevice();
-    final isDebug = await _service.isDebugMode();
-    final isDevmode = await _service.isDeveloperMode();
+    final checks = await Future.wait([
+      _service.isRooted(),
+      _service.isRealDevice(),
+      _service.isDebugMode(),
+      _service.isDeveloperMode(),
+    ]);
+
+    final isNotTrust = checks[0];
+    final isRealDevice = checks[1];
+    final isDebug = checks[2];
+    final isDevmode = checks[3];
 
     if (isNotTrust) {
       threats++;
@@ -289,38 +328,69 @@ class SecurityCubit extends Cubit<SecurityState> {
     return score.clamp(0, 100);
   }
 
-  // تعديل: إدارة الـ الـ Progress بشكل يعبر عن الفحص الفعلي وتأخير وهمي بسيط لتجربة مستخدم سلسة
+  /// بيشغل مرحلة فحص حقيقية مع أنيميشن progress "asymptotic":
+  /// الرقم بيتحرك تدريجيًا ويقرب من سقف المرحلة (90% منها) وهو مستني
+  /// الفحص الحقيقي يخلص، وأول ما الفحص يخلص فعليًا، بيقفز فورًا لآخر
+  /// رقم في المرحلة - يعني الرقم والدايرة بيتزامنوا مع اللحظة اللي
+  /// البيانات فيها بجد جاهزة، مش قبلها ومش بعدها بفترة زيادة.
+  Future<void> _runStage({
+    required int from,
+    required int to,
+    required Future<void> Function() task,
+  }) async {
+    emit(SecurityLoading(from));
+
+    final range = to - from;
+    final softCap = from + (range * 0.9).round();
+
+    int current = from;
+    bool taskDone = false;
+
+    final future = task();
+    // ignore: unawaited_futures
+    future.then((_) => taskDone = true);
+
+    while (!taskDone && current < softCap) {
+      final remaining = softCap - current;
+      final step = (remaining * 0.15).clamp(1, 3).round();
+      await Future.delayed(const Duration(milliseconds: 40));
+      if (taskDone) break;
+      current = (current + step).clamp(from, softCap);
+      emit(SecurityLoading(current));
+    }
+
+    await future;
+
+    // أول ما البيانات جاهزة فعليًا، اقفل فورًا على آخر رقم المرحلة
+    emit(SecurityLoading(to));
+  }
+
   Future<void> fullScan() async {
     results = [];
     threats = 0;
 
-    // 1. فحص Frida (النسبة تبدأ وتتحرك لـ 30%)
-    for (int i = 0; i <= 30; i++) {
-      await Future.
-      delayed(Duration(milliseconds: 10));
-      emit(SecurityLoading(i));
-    }
-    await checkFridaExist(currentProgress: 30);
+    await _runStage(
+      from: 0,
+      to: 30,
+      task: () => checkFridaExist(currentProgress: 0),
+    );
 
-    // 2. فحص الـ Root والـ Emulator (النسبة تتحرك لـ 70%)
-    for (int i = 31; i <= 70; i++) {
-      await Future.delayed(Duration(milliseconds: 10));
-      emit(SecurityLoading(i));
-    }
-    await checkRootJailbreak(currentProgress: 70);
+    await _runStage(
+      from: 30,
+      to: 70,
+      task: () => checkRootJailbreak(currentProgress: 30),
+    );
 
-    // 3. فحص الـ Blacklisted Apps (النسبة تتحرك لـ 100%)
-    for (int i = 71; i <= 99; i++) {
-      await Future.delayed(Duration(milliseconds:10));
-      emit(SecurityLoading(i));
-    }
-    await checkblacklistedApps(currentProgress: 100);
+    await _runStage(
+      from: 70,
+      to: 100,
+      task: () => checkblacklistedApps(currentProgress: 70),
+    );
 
-    // 4. إرسال حالة النجاح النهائية مرة واحدة فقط
+    // إرسال حالة النجاح النهائية مرة واحدة فقط - فورًا بمجرد ما البيانات جاهزة
     final now = DateTime.now();
     emit(SecuritySuccess(results, calculateScore(), now, threats));
 
-    // حفظ تاريخ الفحص الأخير
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('last_scan', now.toIso8601String());
   }

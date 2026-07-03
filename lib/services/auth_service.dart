@@ -41,17 +41,21 @@ class AuthService {
       );
 
       return await _auth.signInWithCredential(credential);
-    } on GoogleSignInException catch (e) {
+    }on GoogleSignInException catch (e) {
+      print("Google Sign-In Error");
+      print("Code: ${e.code}");
+      print("Message: ${e.description}");
 
       if (e.code == GoogleSignInExceptionCode.canceled) {
         return null;
       }
+
       rethrow;
     }
   }
 
-  Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    Future<void> signOut() async {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+    }
   }
-}

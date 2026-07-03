@@ -1,4 +1,4 @@
-package com.example.mobscan
+package com.mobscan1.app
 
 import android.content.pm.PackageManager
 import java.io.File

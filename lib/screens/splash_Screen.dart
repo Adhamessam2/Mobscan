@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
         timer.cancel();
 
         final prefs = await SharedPreferences.getInstance();
-        final isFirstTime = prefs.getBool('is_first_time') ?? true;
+        final isFirstTime = true;
 
         if (isFirstTime) {
           await prefs.setBool('is_first_time', false);

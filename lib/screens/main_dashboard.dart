@@ -184,6 +184,7 @@ class _MainDashboardState extends State<MainDashboard> {
                       }
                       if (state is SecurityLoading) {
                         return CircularProgressIndicator(
+                          value: (state.progress ?? 0) / 100,
                           color: Color(0xFF007BFF),
                           strokeWidth: 15,
                         );
