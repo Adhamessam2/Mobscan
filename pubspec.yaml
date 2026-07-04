@@ -37,7 +37,25 @@ dependencies:
   carousel_slider: ^5.1.2
   flutter_bloc: ^9.1.1
   bloc: ^9.2.0
-
+  jailbreak_root_detection: ^1.2.0+1
+  shared_preferences: ^2.5.5
+  installed_apps: ^2.1.1
+  flutter_svg: ^2.2.4
+  http: ^1.6.0
+  firebase_core: ^4.11.0
+  cloud_firestore: ^6.6.0
+  permission_handler: ^12.0.3
+  workmanager: ^0.6.0
+  android_intent_plus: ^6.0.0
+  pdf: ^3.11.1
+  path_provider: ^2.1.5
+  share_plus: ^10.0.0
+  firebase_auth: ^6.5.4
+  google_sign_in: ^7.2.0
+  hydrated_bloc: ^10.1.1
+  crypto: ^3.0.3
+  flutter_local_notifications: ^19.4.0
+  flutter_launcher_icons: ^0.14.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,7 +82,7 @@ flutter:
   assets:
     - assets/
     - assets/onboarding/
-  #   - images/a_dot_ham.jpeg
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

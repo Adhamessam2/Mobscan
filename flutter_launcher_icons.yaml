@@ -1,0 +1,29 @@
+flutter_launcher_icons:
+  # Fallback for older platforms / basic configurations
+  image_path: "assets/logo.png"
+
+  android: "launcher_icon"
+  min_sdk_android: 21
+  
+  # Adaptive Icon settings for modern Android devices
+  adaptive_icon_background: "#030A16" # Matches the dark blue/black background of your logo
+  adaptive_icon_foreground: "assets/forgroundlogo.png" # The icon elements with transparency
+  adaptive_icon_foreground_inset: 16 # Inset padding to keep it safely within the circle bounds
+
+  ios: true
+  remove_alpha_ios: true
+
+  web:
+    generate: true
+    image_path: "assets/logo.png"
+    background_color: "#030A16"
+    theme_color: "#0F766E"
+
+  windows:
+    generate: true
+    image_path: "assets/logo.png"
+    icon_size: 48
+
+  macos:
+    generate: true
+    image_path: "assets/logo.png"

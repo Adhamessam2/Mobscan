@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobscan/screens/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Onborarding.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,8 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
   }
 
-  void startLoading() {
-    Timer.periodic(Duration(milliseconds: 35), (timer) {
+  void startLoading() async {
+    Timer.periodic(Duration(milliseconds: 35), (timer) async {
       setState(() {
         progress += 0.01;
         percentage = (progress * 100).toInt();
@@ -28,10 +30,21 @@ class _SplashScreenState extends State<SplashScreen> {
       if (progress >= 1.0) {
         timer.cancel();
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Onborarding()),
-        );
+        final prefs = await SharedPreferences.getInstance();
+        final isFirstTime = prefs.getBool('is_first_time') ?? true;
+
+        if (isFirstTime) {
+          await prefs.setBool('is_first_time', false);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Onborarding()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+        }
       }
     });
   }
