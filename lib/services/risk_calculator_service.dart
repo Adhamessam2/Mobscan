@@ -10,68 +10,169 @@ class RiskCalculatorService {
     'android.permission.SYSTEM_ALERT_WINDOW', // Drawing over other apps
   ];
 
-  // 2. THE SMART MATRIX: Comprehensive expected permissions by category
+  // 2. THE SMART MATRIX: Comprehensive expected permissions by category (using lowercase keys to match AppCategory.name)
   final Map<String, List<String>> expectedPermissions = {
     // Media & Communication
-    'Social': [
+    'social': [
       'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
+      'android.permission.READ_CONTACTS', // Essential for friend-matching/chat sync
       'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.ACCESS_COARSE_LOCATION',
     ],
-    'Communication': [
+    'communication': [
       'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO',
       'android.permission.READ_CONTACTS', // Essential for messaging apps
     ],
-    'Photography': [
+    'photography': [
       'android.permission.CAMERA',
       'android.permission.RECORD_AUDIO', // Needed for taking videos within camera apps
       'android.permission.ACCESS_FINE_LOCATION', // Needed for EXIF geotagging photos
     ],
-    'Video': ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
-    'Music_and_audio': [
-      'android.permission.RECORD_AUDIO', // Expected for music recognition (like Shazam) or karaoke
-    ],
-
-    // Location-Based Services
-    'Maps': [
+    'image': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
       'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.ACCESS_COARSE_LOCATION',
     ],
-    'Travel': [
+    'video': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+    ],
+    'audio': [
+      'android.permission.RECORD_AUDIO',
+    ],
+    'music_and_audio': [
+      'android.permission.RECORD_AUDIO', // Expected for music recognition or karaoke
+    ],
+    'game': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+
+    // Location-Based Services
+    'maps': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.CAMERA',
+    ],
+    'travel': [
       'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.CAMERA', // Used for translation features or scanning passports
     ],
-    'Weather': [
+    'weather': [
       'android.permission.ACCESS_FINE_LOCATION', // Needed for hyper-local forecasts
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'news': [
+      'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.ACCESS_COARSE_LOCATION',
     ],
 
     // Lifestyle & Utilities
-    'Health_and_fitness': [
+    'health_and_fitness': [
       'android.permission.ACCESS_FINE_LOCATION', // Tracking running/biking routes
+      'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.CAMERA', // Scanning food barcodes for calories
     ],
-    'Shopping': [
+    'shopping': [
       'android.permission.CAMERA', // Scanning credit cards or AR product try-ons
       'android.permission.ACCESS_FINE_LOCATION', // Finding nearby physical stores
       'android.permission.ACCESS_COARSE_LOCATION',
     ],
-    'Finance': [
+    'finance': [
       'android.permission.CAMERA', // Depositing cheques
-      'android.permission.ACCESS_FINE_LOCATION', // Bank fraud prevention (verifying user location)
-      'android.permission.READ_CONTACTS', // Sending money to friends (like Venmo/PayPal)
+      'android.permission.ACCESS_FINE_LOCATION', // Bank fraud prevention
+      'android.permission.READ_CONTACTS', // Sending money to friends
     ],
-    'Dating': [
+    'dating': [
       'android.permission.ACCESS_FINE_LOCATION', // Core functionality of dating apps
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.CAMERA',
     ],
-    'Education': [
+    'education': [
       'android.permission.CAMERA', // For video lectures/proctoring
       'android.permission.RECORD_AUDIO',
+    ],
+    'productivity': [
+      'android.permission.READ_CONTACTS',
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'accessibility': [
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
+    'business': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+      'android.permission.READ_CONTACTS',
+    ],
+    'medical': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'tools': [
+      'android.permission.CAMERA',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
+    'lifestyle': [
+      'android.permission.CAMERA',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'entertainment': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+    ],
+    'house_and_home': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.CAMERA',
+    ],
+    'parenting': [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+    ],
+    'events': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.CAMERA',
+    ],
+    'books_and_reference': [
+      'android.permission.RECORD_AUDIO',
+      'android.permission.CAMERA',
+    ],
+    'personalization': [
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
+    'sports': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'food_and_drink': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'auto_and_vehicles': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
+    'beauty': [
+      'android.permission.CAMERA',
+    ],
+    'news_and_magazines': [
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
     ],
   };
 
@@ -88,12 +189,19 @@ class RiskCalculatorService {
         .where((p) => dangerousPermissions.contains(p))
         .toList();
 
+    // Normalize category to lowercase to prevent casing mismatches
+    final normalizedCategory = category.trim().toLowerCase();
+
     // Get the list of "reasonable" permissions for this specific app's category
-    final allowedForThisCategory = expectedPermissions[category] ?? [];
+    final allowedForThisCategory = expectedPermissions[normalizedCategory] ?? [];
 
     for (String perm in appDangerousPerms) {
-      // Global Override: SYSTEM_ALERT_WINDOW is almost always sketchy unless it's a specific utility
+      // Global Override: SYSTEM_ALERT_WINDOW is almost always sketchy unless it's a specific utility/accessibility
       if (perm == 'android.permission.SYSTEM_ALERT_WINDOW') {
+        // Skip penalty if the app category specifically allows overlay permissions (like accessibility)
+        if (allowedForThisCategory.contains(perm)) {
+          continue;
+        }
         score += 60;
         suspiciousFinds.add('Can draw over other apps (High Risk)');
         continue;

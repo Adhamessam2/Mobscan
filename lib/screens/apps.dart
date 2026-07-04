@@ -97,13 +97,15 @@ class _AppsState extends State<Apps> {
                   "flagged :${cubit.riskyApps.length}",
                   style: TextStyle(color: Appcolors.text),
                 ),
-                Spacer(),
-                Icon(Icons.circle, color: Colors.blue, size: 12),
-                SizedBox(width: 5),
-                Text(
-                  "scanning...",
-                  style: TextStyle(color: Appcolors.text),
-                ),
+                const Spacer(),
+                if (state.status == AppStatus.loading) ...[
+                  const Icon(Icons.circle, color: Colors.blue, size: 12),
+                  const SizedBox(width: 5),
+                  Text(
+                    "scanning...",
+                    style: TextStyle(color: Appcolors.text),
+                  ),
+                ],
               ],
             );
           },

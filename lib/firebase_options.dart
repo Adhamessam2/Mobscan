@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBiUwYGXfOLEwM9lIYwYC7vVLrVhvdFUzQ',
-    appId: '1:793206894125:android:db1ac0a3b1c29c3df112a4',
+    appId: '1:793206894125:android:4017383c1d234483f112a4',
     messagingSenderId: '793206894125',
     projectId: 'mobscan-7505e',
     storageBucket: 'mobscan-7505e.firebasestorage.app',

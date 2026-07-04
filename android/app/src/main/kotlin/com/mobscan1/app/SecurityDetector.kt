@@ -1,4 +1,4 @@
-package com.example.mobscan
+package com.mobscan1.app
 
 import java.io.File
 import java.net.Socket

@@ -1,4 +1,4 @@
-package com.example.mobscan
+package com.mobscan1.app
 
 import android.content.pm.PackageManager
 import java.io.File
@@ -24,51 +24,56 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
 
                 "getInstalledApps" -> {
+                    Thread {
+                        try {
 
-                    try {
+                            val packageManager = packageManager
+                            val installedApps = packageManager.getInstalledApplications(
+                                PackageManager.GET_META_DATA
+                            )
 
-                        val packageManager = packageManager
-                        val installedApps = packageManager.getInstalledApplications(
-                            PackageManager.GET_META_DATA
-                        )
+                            val appsList = mutableListOf<Map<String, String>>()
 
-                        val appsList = mutableListOf<Map<String, String>>()
+                            for (app in installedApps) {
 
-                        for (app in installedApps) {
+                                try {
 
-                            try {
+                                    val appName =
+                                        packageManager.getApplicationLabel(app).toString()
 
-                                val appName =
-                                    packageManager.getApplicationLabel(app).toString()
+                                    val packageName = app.packageName
 
-                                val packageName = app.packageName
+                                    val hash =
+                                        calculateSHA256(app.sourceDir)
 
-                                val hash =
-                                    calculateSHA256(app.sourceDir)
-
-                                appsList.add(
-                                    mapOf(
-                                        "appName" to appName,
-                                        "packageName" to packageName,
-                                        "hash" to hash
+                                    appsList.add(
+                                        mapOf(
+                                            "appName" to appName,
+                                            "packageName" to packageName,
+                                            "hash" to hash
+                                        )
                                     )
-                                )
 
-                            } catch (e: Exception) {
-                                e.printStackTrace()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+
+                            runOnUiThread {
+                                result.success(appsList)
+                            }
+
+                        } catch (e: Exception) {
+
+                            runOnUiThread {
+                                result.error(
+                                    "ERROR",
+                                    e.message,
+                                    null
+                                )
                             }
                         }
-
-                        result.success(appsList)
-
-                    } catch (e: Exception) {
-
-                        result.error(
-                            "ERROR",
-                            e.message,
-                            null
-                        )
-                    }
+                    }.start()
                 }
 
                 else -> result.notImplemented()
@@ -96,7 +101,12 @@ class MainActivity : FlutterActivity() {
 
             when (call.method) {
                 "checkFrida" -> {
-                    result.success(SecurityDetector.isFridaDetected())
+                    Thread {
+                        val isDetected = SecurityDetector.isFridaDetected()
+                        runOnUiThread {
+                            result.success(isDetected)
+                        }
+                    }.start()
                 }
 
                 else -> {
