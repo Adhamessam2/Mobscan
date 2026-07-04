@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:mobscan/screens/auth/auth_gate.dart';
 import 'package:mobscan/screens/call_dispacher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:workmanager/workmanager.dart';
@@ -10,10 +11,8 @@ import 'package:mobscan/controllers/apps_controller/cubit/apps_cubit.dart';
 import 'package:mobscan/controllers/apps_controller/cubit/theme_cubit.dart';
 import 'package:mobscan/controllers/security_controller/security_cubit.dart';
 import 'package:mobscan/firebase_options.dart';
-import 'package:mobscan/screens/auth/auth_gate.dart';
 import 'package:mobscan/services/app_scanner_service.dart';
-
-
+import 'package:mobscan/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +28,8 @@ Future<void> main() async {
       ),
     );
 
-    await Workmanager().initialize(
-      callbackDispatcher,
-      isInDebugMode: true,
-    );
+    await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    await NotificationService.init();
 
     runApp(const Mobscan());
   }
@@ -45,15 +42,9 @@ class Mobscan extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ThemeCubit>(
-          create: (_) => ThemeCubit(),
-        ),
-        BlocProvider<AppsCubit>(
-          create: (_) => AppsCubit(AppScannerService()),
-        ),
-        BlocProvider<SecurityCubit>(
-          create: (_) => SecurityCubit(),
-        ),
+        BlocProvider<ThemeCubit>(create: (_) => ThemeCubit()),
+        BlocProvider<AppsCubit>(create: (_) => AppsCubit(AppScannerService())),
+        BlocProvider<SecurityCubit>(create: (_) => SecurityCubit()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
@@ -83,7 +74,7 @@ class Mobscan extends StatelessWidget {
               ),
             ),
 
-            home:const AuthGate(),
+            home: const AuthGate(),
           );
         },
       ),

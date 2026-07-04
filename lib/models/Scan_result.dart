@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 class ScanResult {
   final String svg;
   final Color svgColor;
@@ -12,6 +13,6 @@ class ScanResult {
     required this.behaviour,
     required this.behavColor,
     required this.explain,
-    required this.smallExplain});
-
+    required this.smallExplain,
+  });
 }

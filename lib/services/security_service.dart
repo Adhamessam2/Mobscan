@@ -30,7 +30,7 @@ class SecurityService {
       if (blacklist.contains(packageName)) {
         if (notificationsEnabled) {
           await NotificationService.showRiskNotification(
-            title: "${app.appName} is dangerous",
+            title: "${app['appName']} is dangerous",
             body: "Uninstall it now.",
           );
         }

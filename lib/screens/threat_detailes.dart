@@ -18,6 +18,55 @@ class ThreatDetailScreen extends StatefulWidget {
 }
 
 class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
+  Color _getRiskColor(int score) {
+    if (score <= 25) return Colors.green;
+    if (score <= 50) return Colors.yellow.shade700;
+    if (score <= 75) return Colors.orange;
+    return Colors.red;
+  }
+
+  IconData _getRiskIcon(String reason) {
+    if (reason.contains('draw over other apps') || reason.contains('SYSTEM_ALERT_WINDOW')) {
+      return Icons.layers;
+    }
+    if (reason.contains('SMS')) {
+      return Icons.sms;
+    }
+    if (reason.contains('Contacts')) {
+      return Icons.contacts;
+    }
+    if (reason.contains('Camera') || reason.contains('Microphone') || reason.contains('RECORD_AUDIO') || reason.contains('CAMERA')) {
+      return Icons.videocam;
+    }
+    if (reason.contains('Location') || reason.contains('LOCATION')) {
+      return Icons.location_on;
+    }
+    return Icons.warning;
+  }
+
+  String _getDetailForReason(String reason) {
+    final List<String> details = [];
+    if (reason.contains('draw over other apps') || reason.contains('SYSTEM_ALERT_WINDOW')) {
+      details.add('Creates invisible overlays to trick you into tapping malicious buttons or stealing inputs.');
+    }
+    if (reason.contains('SMS')) {
+      details.add('Allows the app to read/send SMS messages, potentially intercepting verification codes or OTPs.');
+    }
+    if (reason.contains('Contacts')) {
+      details.add('Allows the app to access your contact list, which could be collected without authorization.');
+    }
+    if (reason.contains('Camera') || reason.contains('Microphone') || reason.contains('RECORD_AUDIO') || reason.contains('CAMERA')) {
+      details.add('Allows the app to capture screenshots, record audio/video, or spy on you without consent.');
+    }
+    if (reason.contains('Location') || reason.contains('LOCATION')) {
+      details.add('Allows tracking of your real-time precise location, compromising physical privacy.');
+    }
+    if (details.isEmpty) {
+      return 'The app requests sensitive system permissions that are not typical for its category, posing potential privacy risks.';
+    }
+    return details.join('\n\n');
+  }
+
   void _openAppManagement() {
     if (Platform.isAndroid) {
       final intent = AndroidIntent(
@@ -83,12 +132,12 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.red,
+                              color: _getRiskColor(widget.app.riskLevel ?? 0),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               widget.riskystatus,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -116,7 +165,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                     Text(
                       "${widget.app.riskLevel.toString()}%",
                       style: TextStyle(
-                        color: Colors.red,
+                        color: _getRiskColor(widget.app.riskLevel ?? 0),
                         fontSize: 56,
                         fontWeight: FontWeight.bold,
                       ),
@@ -134,7 +183,7 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          const Icon(Icons.shield, color: Colors.red, size: 18),
+                          Icon(Icons.shield, color: _getRiskColor(widget.app.riskLevel ?? 0), size: 18),
                           const SizedBox(width: 8),
                           Text(
                             'Why is this risky?',
@@ -149,11 +198,10 @@ class _ThreatDetailScreenState extends State<ThreatDetailScreen> {
                     ),
                     const SizedBox(height: 10),
                     RiskCard(
-                      icon: Icons.layers,
-                      color: Colors.red,
+                      icon: _getRiskIcon(widget.app.riskReason ?? ''),
+                      color: _getRiskColor(widget.app.riskLevel ?? 0),
                       title: widget.app.riskReason!,
-                      detail:
-                          'Creates invisible overlays to trick you into tapping malicious buttons.',
+                      detail: _getDetailForReason(widget.app.riskReason ?? ''),
                     ),
                     const SizedBox(height: 50),
                     Align(
@@ -306,7 +354,17 @@ class RiskCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    if (detail.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        detail,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

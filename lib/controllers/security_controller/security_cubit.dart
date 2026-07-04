@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
-import 'package:meta/meta.dart';
 import 'package:mobscan/controllers/security_controller/service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../models/Scan_result.dart';
 import '../../services/notification_service.dart';
 import '../../services/security_service.dart';
@@ -17,9 +15,46 @@ import '../../services/security_service.dart';
 part 'security_state.dart';
 
 class SecurityCubit extends Cubit<SecurityState> {
-  SecurityCubit() : super(SecuirtyInitial());
+  static final List<ScanResult> defaultResults = [
+    ScanResult(
+      svg: 'assets/icons/hook_blue.svg',
+      svgColor: Colors.blue.withOpacity(0.2),
+      behaviour: "Secure",
+      behavColor: Colors.blue,
+      explain: "No one monitor you",
+      smallExplain: "Device is safe",
+    ),
+    ScanResult(
+      svg: 'assets/icons/secret_blue.svg',
+      svgColor: Colors.blue.withOpacity(0.2),
+      behaviour: "Secure",
+      behavColor: Colors.blue,
+      explain: "Root Detection",
+      smallExplain: "Environment is safe",
+    ),
+    ScanResult(
+      svg: 'assets/icons/emulator.svg',
+      svgColor: Colors.blue.withOpacity(0.2),
+      behaviour: "Secure",
+      behavColor: Colors.blue,
+      explain: "Physical Device",
+      smallExplain: "Not an emulator",
+    ),
+    ScanResult(
+      svg: 'assets/icons/secret_blue.svg',
+      svgColor: Colors.blue.withOpacity(0.2),
+      behaviour: "Secure",
+      behavColor: Colors.blue,
+      explain: "Blacklist Scan",
+      smallExplain: "No dangerous apps detected",
+    ),
+  ];
+
+  SecurityCubit() : super(SecuirtyInitial()) {
+    results = List.from(defaultResults);
+  }
   List<ScanResult> results = [];
-  List<ScanResult>result_virus=[];
+  List<ScanResult> result_virus = [];
   int threats = 0;
   int score = 100;
   final SecurityService _service = SecurityService();
@@ -29,111 +64,110 @@ class SecurityCubit extends Cubit<SecurityState> {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('notifications') ?? true;
   }
+
   Future<void> sendNotificationIfEnabled({
     required String title,
     required String body,
   }) async {
     if (await isNotificationEnabled()) {
-      await NotificationService.showRiskNotification(
-        title: title,
-        body: body,
-      );
+      await NotificationService.showRiskNotification(title: title, body: body);
     }
   }
-  Future<void> checkblacklistedApps() async {
-    final snapshot =
-    await FirebaseFirestore.instance.collection('blacklist').get();
+
+  Future<void> _collectBlacklistedAppsResults() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('blacklist')
+        .get();
 
     final apps = await VirusTotalService().getInstalledAppsNames();
 
-    Set<String> blacklist = {};
+    final blacklistIds = snapshot.docs.map((doc) => doc.id).toList();
 
-    for (var doc in snapshot.docs) {
-      blacklist.add(doc.id);
+    // Offload heavy signature matching to background Isolate to protect main UI thread
+    final List<String> matchedPackages = await compute(matchBlacklistedApps, {
+      'apps': apps,
+      'blacklist': blacklistIds,
+    });
+
+    bool dangerousAppFound = matchedPackages.isNotEmpty;
+
+    for (final packageName in matchedPackages) {
+      threats++;
+      results.add(
+        ScanResult(
+          svg: 'assets/icons/secret.svg',
+          svgColor: Colors.red.withOpacity(0.2),
+          behaviour: "High",
+          behavColor: Colors.red,
+          explain: packageName,
+          smallExplain: "Dangerous app detected",
+        ),
+      );
     }
 
-    for (var app in apps) {
-      final packageName = app['packageName'] as String;
-
-      if (blacklist.contains(packageName)) {
-        threats++;
-        results.add(
-          ScanResult(
-            svg: 'assets/icons/secret.svg',
-            svgColor: Colors.red.withOpacity(0.2),
-            behaviour: "High",
-            behavColor: Colors.red,
-            explain: packageName,
-            smallExplain: "Dangerous app detected",
-          ),
-        );
-      } else {
-        results.add(
-          ScanResult(
-            svg: 'assets/icons/secret_blue.svg',
-            svgColor: Colors.blue.withOpacity(0.2),
-            behaviour: "Secure",
-            behavColor: Colors.blue,
-            explain: packageName,
-            smallExplain: "No dangerous app",
-          ),
-        );
-      }
+    if (!dangerousAppFound) {
+      results.add(
+        ScanResult(
+          svg: 'assets/icons/secret_blue.svg',
+          svgColor: Colors.blue.withOpacity(0.2),
+          behaviour: "Secure",
+          behavColor: Colors.blue,
+          explain: "Blacklist Scan",
+          smallExplain: "No dangerous apps detected",
+        ),
+      );
     }
   }
-  Future<void> checkVirusTotal(
-      String sha256Hash,
-      String packageName,
-      ) async {
+
+  Future<void> checkblacklistedApps() async {
+    emit(SecurityLoading());
+    try {
+      await _collectBlacklistedAppsResults();
+    } catch (e) {
+      debugPrint("Standalone blacklist check error: $e");
+    }
+    emit(SecuritySuccess(results, calculateScore(), DateTime.now(), threats));
+  }
+
+  Future<void> checkVirusTotal(String sha256Hash, String packageName) async {
     final response = await http.get(
-      Uri.parse(
-        'https://www.virustotal.com/api/v3/files/$sha256Hash',
-      ),
+      Uri.parse('https://www.virustotal.com/api/v3/files/$sha256Hash'),
       headers: {
-        'x-apikey': '7165900d04c37bb0dc21af8f44a2439c40a193d765c1f2433a3d5adde61cf250',
+        'x-apikey':
+            '7165900d04c37bb0dc21af8f44a2439c40a193d765c1f2433a3d5adde61cf250',
       },
     );
 
     if (response.statusCode == 200) {
-      final data =
-      jsonDecode(response.body);
+      final data = jsonDecode(response.body);
 
-      final stats =
-      data['data']['attributes']
-      ['last_analysis_stats'];
+      final stats = data['data']['attributes']['last_analysis_stats'];
 
-      final malicious =
-          stats['malicious'] ?? 0;
+      final malicious = stats['malicious'] ?? 0;
 
-      final suspicious =
-          stats['suspicious'] ?? 0;
-      final harmless = stats['harmless'] ?? 0;
+      final suspicious = stats['suspicious'] ?? 0;
 
       debugPrint(
         "$packageName => "
-            "malicious=$malicious "
-            "suspicious=$suspicious",
+        "malicious=$malicious "
+        "suspicious=$suspicious",
       );
     }
   }
+
   Future<void> scanApps() async {
-    final apps =
-    await VirusTotalService().getInstalledAppsNames();
+    final apps = await VirusTotalService().getInstalledAppsNames();
 
     for (final app in apps.take(5)) {
       try {
-        await checkVirusTotal(
-          app['hash'],
-          app['packageName'],
-        );
+        await checkVirusTotal(app['hash'], app['packageName']);
       } catch (e) {
         debugPrint(e.toString());
       }
     }
   }
-  Future<void> checkRootJailbreak() async {
-    emit(SecurityLoading());
 
+  Future<void> _collectRootJailbreakResults() async {
     final isNotTrust = await _service.isRooted();
     final isRealDevice = await _service.isRealDevice();
     final isDebug = await _service.isDebugMode();
@@ -193,7 +227,7 @@ class SecurityCubit extends Cubit<SecurityState> {
       );
     }
 
-    if (isDevmode){
+    if (isDevmode) {
       threats++;
       results.add(
         ScanResult(
@@ -206,8 +240,7 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    if (isDebug)
-    {
+    if (isDebug) {
       threats++;
       results.add(
         ScanResult(
@@ -232,27 +265,34 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    print("Score = ${calculateScore()}");
-    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
   }
-  Future<void> checkFridaExist() async {
-    emit(SecurityLoading());
 
+  Future<void> checkRootJailbreak() async {
+    emit(SecurityLoading());
+    try {
+      await _collectRootJailbreakResults();
+    } catch (e) {
+      debugPrint("Standalone Root check error: $e");
+    }
+    emit(SecuritySuccess(results, calculateScore(), DateTime.now(), threats));
+  }
+
+  Future<void> _collectFridaResults() async {
     bool isFrida = await _service.checkFrida();
     if (isFrida) {
-
       threats++;
       results.add(
         ScanResult(
           svg: 'assets/icons/hook.svg',
           svgColor: Colors.red.withOpacity(0.2),
-          behaviour: "Someone monitor you",
+          behaviour: "Frida Hook",
           behavColor: Colors.red,
           explain: "Frida detected",
           smallExplain: "Device is insecure",
         ),
       );
-    } if(!isFrida) {
+    }
+    if (!isFrida) {
       results.add(
         ScanResult(
           svg: 'assets/icons/hook_blue.svg',
@@ -264,31 +304,58 @@ class SecurityCubit extends Cubit<SecurityState> {
         ),
       );
     }
-    print("Score = ${calculateScore()}");
-    emit(SecuritySuccess(results, calculateScore(),DateTime.now(),threats));
+  }
+
+  Future<void> checkFridaExist() async {
+    emit(SecurityLoading());
+    try {
+      await _collectFridaResults();
+    } catch (e) {
+      debugPrint("Standalone Frida check error: $e");
+    }
+    emit(SecuritySuccess(results, calculateScore(), DateTime.now(), threats));
   }
 
   int calculateScore() {
     int score = 100;
 
     for (var r in results) {
-      switch (r.behaviour) {
-        case "High":
-          score -= 30;
-          break;
-        case "Medium":
-          score -= 15;
-          break;
-        case "Frida Hook":
+      final behaviour = r.behaviour;
+      final explain = r.explain.toLowerCase();
+      final smallExplain = r.smallExplain.toLowerCase();
+
+      // Runtime hooking (Frida/Xposed) - Critical Flaw (-40%)
+      if (behaviour == "Frida Hook" || explain.contains("frida")) {
+        score -= 40;
+      }
+      // Rooted/Jailbroken status - Critical Flaw (-40%)
+      else if (explain.contains("root") || explain.contains("jailbreak")) {
+        if (behaviour != "Secure") {
           score -= 40;
-          break;
-        case "Secure":
-          score -= 0;
-          break;
+        }
+      }
+      // Emulator status - Moderate Flaw (-20%)
+      else if (explain.contains("emulator")) {
+        if (behaviour != "Secure") {
+          score -= 20;
+        }
+      }
+      // Malicious/Suspicious/Blacklisted Package - Moderate Flaw (-20%)
+      else if (smallExplain.contains("dangerous app") ||
+          explain.contains("blacklist")) {
+        if (behaviour != "Secure") {
+          score -= 20;
+        }
+      }
+      // Dev / Debug mode enabled - Moderate Flaw (-20%)
+      else if (behaviour != "Secure") {
+        score -= 20;
       }
     }
+
     return score.clamp(0, 100);
   }
+
   Future<void> fullScan() async {
     results = [];
     threats = 0;
@@ -298,32 +365,65 @@ class SecurityCubit extends Cubit<SecurityState> {
       emit(SecurityLoading(i));
     }
 
-    await checkFridaExist();
-    await checkRootJailbreak();
-    await checkblacklistedApps();
+    try {
+      await _collectFridaResults();
+    } catch (e) {
+      debugPrint("Frida check error: $e");
+    }
 
-    print("Final score = ${calculateScore()}");
+    try {
+      await _collectRootJailbreakResults();
+    } catch (e) {
+      debugPrint("Root check error: $e");
+    }
 
-    emit(SecuritySuccess(
-      results,
-      calculateScore(),
-      DateTime.now(),
-      threats,
-    ));
+    try {
+      await _collectBlacklistedAppsResults();
+    } catch (e) {
+      debugPrint("Blacklist check error: $e");
+    }
+
+    final finalScore = calculateScore();
+    final now = DateTime.now();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('last_scan', now.toIso8601String());
+    } catch (e) {
+      debugPrint("Error saving last scan time: $e");
+    }
+
+    print("Final score = $finalScore");
+    emit(SecuritySuccess(results, finalScore, now, threats));
   }
+
   Future<void> getLastScan() async {
     final prefs = await SharedPreferences.getInstance();
 
     final lastScanString = prefs.getString('last_scan');
 
     if (lastScanString != null) {
-      emit(
-        SecuirtyInitial(
-          lastScan: DateTime.parse(lastScanString),
-        ),
-      );
+      emit(SecuirtyInitial(lastScan: DateTime.parse(lastScanString)));
     } else {
       emit(SecuirtyInitial());
     }
   }
+}
+
+/// Top-level function used with compute() to match installed apps against blacklist in a background isolate.
+List<String> matchBlacklistedApps(Map<String, dynamic> params) {
+  final List<dynamic> apps = params['apps'] as List<dynamic>;
+  final List<dynamic> blacklistList = params['blacklist'] as List<dynamic>;
+  final Set<String> blacklistSet = Set<String>.from(blacklistList);
+
+  final List<String> matchedPackages = [];
+  for (final app in apps) {
+    if (app is Map) {
+      final packageName = app['packageName'] as String?;
+      if (packageName != null && blacklistSet.contains(packageName)) {
+        matchedPackages.add(packageName);
+      }
+    }
+  }
+  return matchedPackages;
 }
